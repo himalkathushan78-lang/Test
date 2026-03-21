@@ -6,8 +6,9 @@
     <title>Cement Order & Analysis Portal</title>
     <!-- Tailwind CSS for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- html2pdf for PDF generation -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- jsPDF and AutoTable for robust PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
@@ -219,62 +220,6 @@
         </div>
     </div>
 
-    <!-- ==================== HIDDEN INVOICE TEMPLATE FOR PDF ==================== -->
-    <div id="invoice-template" class="hidden bg-white p-10 text-black w-[800px] border border-gray-200">
-        <div style="display:flex; justify-content:space-between; border-bottom:2px solid #1e3a8a; padding-bottom:20px; margin-bottom:20px;">
-            <div>
-                <h1 style="font-size:28px; font-weight:bold; color:#1e3a8a;">CEMENT PRO</h1>
-                <p style="color:#555;">Official Order Receipt</p>
-            </div>
-            <div style="text-align:right;">
-                <h2 style="font-size:20px; font-weight:bold;">Order #: <span id="pdf-order-id"></span></h2>
-                <p>Date: <span id="pdf-date"></span></p>
-            </div>
-        </div>
-
-        <div style="display:flex; justify-content:space-between; margin-bottom:30px;">
-            <div style="width:48%; background:#f9fafb; padding:15px; border-radius:5px;">
-                <h3 style="font-weight:bold; border-bottom:1px solid #ccc; margin-bottom:10px;">Customer Information</h3>
-                <p><strong>Name:</strong> <span id="pdf-customer-name"></span></p>
-                <p><strong>ID:</strong> <span id="pdf-customer-id"></span></p>
-            </div>
-            <div style="width:48%; background:#f9fafb; padding:15px; border-radius:5px;">
-                <h3 style="font-weight:bold; border-bottom:1px solid #ccc; margin-bottom:10px;">Logistics</h3>
-                <p><strong>Lorry No:</strong> <span id="pdf-lorry"></span></p>
-                <p><strong>Driver:</strong> <span id="pdf-driver-name"></span> (ID: <span id="pdf-driver-id"></span>)</p>
-            </div>
-        </div>
-
-        <table style="width:100%; border-collapse:collapse; margin-bottom:30px;">
-            <thead>
-                <tr style="background-color:#1e3a8a; color:white;">
-                    <th style="padding:10px; text-align:left;">Cement Type</th>
-                    <th style="padding:10px; text-align:center;">Price / Unit</th>
-                    <th style="padding:10px; text-align:center;">Quantity</th>
-                    <th style="padding:10px; text-align:right;">Subtotal</th>
-                </tr>
-            </thead>
-            <tbody id="pdf-items">
-                <!-- Items injected here -->
-            </tbody>
-        </table>
-
-        <div style="display:flex; justify-content:flex-end;">
-            <div style="width:300px; border-top:2px solid #333; padding-top:10px;">
-                <div style="display:flex; justify-content:space-between; font-size:24px; font-weight:bold; color:#166534;">
-                    <span>Grand Total:</span>
-                    <span id="pdf-total"></span>
-                </div>
-            </div>
-        </div>
-        
-        <div style="margin-top:50px; text-align:center; color:#777; font-size:12px;">
-            <p>Thank you for your business. For any inquiries, please contact support.</p>
-            <p>Generated automatically by Cement Pro System</p>
-        </div>
-    </div>
-
-
     <script>
         // ==========================================
         // CONFIGURATION
@@ -436,7 +381,7 @@
 
             // Format Cement Details securely
             let cementDetailsArr = [];
-            let pdfItemsHTML = "";
+            let pdfItemsData = []; // Array for jsPDF autoTable
             CEMENT_CATALOG.forEach(cement => {
                 const checkbox = document.querySelector(`.cement-checkbox[value="${cement.id}"]`);
                 const qtyInput = document.getElementById(`qty-${cement.id}`);
@@ -445,15 +390,13 @@
                     const subtotal = cement.price * qty;
                     cementDetailsArr.push(`${cement.name} (${qty})`);
                     
-                    // Build PDF table rows
-                    pdfItemsHTML += `
-                        <tr style="border-bottom:1px solid #eee;">
-                            <td style="padding:10px;">${cement.name}</td>
-                            <td style="padding:10px; text-align:center;">$${cement.price.toFixed(2)}</td>
-                            <td style="padding:10px; text-align:center;">${qty}</td>
-                            <td style="padding:10px; text-align:right;">$${subtotal.toFixed(2)}</td>
-                        </tr>
-                    `;
+                    // Add row data for jsPDF
+                    pdfItemsData.push([
+                        cement.name,
+                        `$${cement.price.toFixed(2)}`,
+                        qty.toString(),
+                        `$${subtotal.toFixed(2)}`
+                    ]);
                 }
             });
 
@@ -481,7 +424,7 @@
                     showAlert(`Order #${result.orderId} successfully created! Generating PDF Preview...`);
                     
                     // Generate and Preview PDF before resetting form
-                    previewPDF(result.orderId, orderData, pdfItemsHTML, totalAmount);
+                    previewPDF(result.orderId, orderData, pdfItemsData, totalAmount);
 
                     // Reset Form
                     document.getElementById('orderForm').reset();
@@ -502,57 +445,79 @@
         }
 
         // ==========================================
-        // PDF PREVIEW & GENERATION
+        // PDF PREVIEW & GENERATION (Using jsPDF)
         // ==========================================
-        function previewPDF(orderId, data, itemsHTML, total) {
-            // Populate hidden template
-            document.getElementById('pdf-order-id').innerText = orderId;
-            document.getElementById('pdf-date').innerText = data.date;
-            document.getElementById('pdf-customer-name').innerText = data.customerName;
-            document.getElementById('pdf-customer-id').innerText = data.customerId;
-            document.getElementById('pdf-lorry').innerText = data.lorryNumber;
-            document.getElementById('pdf-driver-name').innerText = data.driverName;
-            document.getElementById('pdf-driver-id').innerText = data.driverId;
-            document.getElementById('pdf-items').innerHTML = itemsHTML;
-            document.getElementById('pdf-total').innerText = `$${total.toFixed(2)}`;
+        function previewPDF(orderId, data, itemsData, total) {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
 
-            const element = document.getElementById('invoice-template');
+            // Header
+            doc.setFontSize(22);
+            doc.setTextColor(30, 58, 138); // blue-800
+            doc.text("CEMENT PRO", 14, 20);
             
-            // Fix: Render the element completely off-screen so html2canvas captures it accurately
-            element.classList.remove('hidden');
-            element.style.display = 'block';
-            element.style.position = 'fixed';
-            element.style.top = '0';
-            element.style.left = '200vw'; // Move it completely to the right off-screen
+            doc.setFontSize(10);
+            doc.setTextColor(100, 100, 100);
+            doc.text("Official Order Receipt", 14, 28);
+
+            doc.setFontSize(12);
+            doc.setTextColor(0, 0, 0);
+            doc.text(`Order #: ${orderId}`, 140, 20);
+            doc.text(`Date: ${data.date}`, 140, 26);
+
+            doc.setDrawColor(200, 200, 200);
+            doc.line(14, 32, 196, 32);
+
+            // Customer Info
+            doc.setFontSize(11);
+            doc.setFont(undefined, 'bold');
+            doc.text("Customer Information", 14, 42);
+            doc.setFont(undefined, 'normal');
+            doc.setFontSize(10);
+            doc.text(`Name: ${data.customerName}`, 14, 48);
+            doc.text(`ID: ${data.customerId}`, 14, 54);
+
+            // Logistics Info
+            doc.setFontSize(11);
+            doc.setFont(undefined, 'bold');
+            doc.text("Logistics", 110, 42);
+            doc.setFont(undefined, 'normal');
+            doc.setFontSize(10);
+            doc.text(`Lorry No: ${data.lorryNumber}`, 110, 48);
+            doc.text(`Driver: ${data.driverName} (ID: ${data.driverId})`, 110, 54);
+
+            // Table using autoTable plugin
+            doc.autoTable({
+                startY: 65,
+                head: [['Cement Type', 'Price / Unit', 'Quantity', 'Subtotal']],
+                body: itemsData,
+                theme: 'grid',
+                headStyles: { fillColor: [30, 58, 138] },
+                styles: { fontSize: 10 }
+            });
+
+            // Total Amount
+            const finalY = doc.lastAutoTable.finalY || 65;
+            doc.setFontSize(14);
+            doc.setFont(undefined, 'bold');
+            doc.setTextColor(22, 101, 52); // green-800
+            doc.text(`Grand Total: $${total.toFixed(2)}`, 140, finalY + 15);
+
+            // Footer
+            doc.setFontSize(9);
+            doc.setFont(undefined, 'normal');
+            doc.setTextColor(150, 150, 150);
+            doc.text("Thank you for your business. Generated automatically by Cement Pro System.", 105, 280, { align: "center" });
 
             currentPdfFilename = `Order_${orderId}_${data.customerName.replace(/\s+/g, '_')}.pdf`;
 
-            const opt = {
-                margin:       10,
-                filename:     currentPdfFilename,
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true, scrollY: 0 },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
-
-            // Add a small delay to ensure the browser paints the un-hidden text before taking a snapshot
-            setTimeout(() => {
-                html2pdf().set(opt).from(element).output('bloburl').then(function(blobUrl) {
-                    currentPdfBlobUrl = blobUrl;
-                    document.getElementById('pdf-preview-iframe').src = blobUrl;
-                    
-                    // Show modal
-                    document.getElementById('pdfPreviewModal').classList.remove('hidden');
-                    lucide.createIcons();
-
-                    // Re-hide the element completely after generation is done
-                    element.classList.add('hidden');
-                    element.style.display = 'none';
-                    element.style.position = '';
-                    element.style.top = '';
-                    element.style.left = '';
-                });
-            }, 150);
+            // Get Blob URL and show in iframe
+            currentPdfBlobUrl = doc.output('bloburl');
+            document.getElementById('pdf-preview-iframe').src = currentPdfBlobUrl;
+            
+            // Show modal
+            document.getElementById('pdfPreviewModal').classList.remove('hidden');
+            lucide.createIcons();
         }
 
         function closePdfPreview() {
