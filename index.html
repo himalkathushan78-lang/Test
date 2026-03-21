@@ -157,21 +157,26 @@
 
     </main>
 
-    <!-- ==================== PDF PREVIEW MODAL ==================== -->
+    <!-- ==================== PREVIEW MODAL ==================== -->
     <div id="pdfPreviewModal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <!-- Changed to flex items-center justify-center to guarantee dead-center alignment -->
+        <div class="flex items-center justify-center min-h-screen p-4 text-center sm:p-0">
             <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onclick="closePdfPreview()"></div>
-            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
             
-            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full h-[85vh] flex flex-col">
-                <div class="bg-blue-600 px-4 py-3 sm:px-6 flex justify-between items-center">
+            <div class="relative bg-white rounded-lg text-left shadow-xl transform transition-all sm:my-8 sm:max-w-4xl sm:w-full h-[85vh] flex flex-col">
+                <div class="bg-blue-600 px-4 py-3 sm:px-6 flex justify-between items-center rounded-t-lg">
                     <h3 class="text-lg leading-6 font-bold text-white">Invoice Preview</h3>
                     <button onclick="closePdfPreview()" class="text-white hover:text-gray-200"><i data-lucide="x"></i></button>
                 </div>
-                <div class="flex-grow p-4 bg-gray-200 w-full h-full">
-                    <iframe id="pdf-preview-iframe" class="w-full h-full border-0 shadow-sm bg-white" src=""></iframe>
+                
+                <!-- Clean HTML View of the Receipt instead of iframe -->
+                <div class="flex-grow p-6 bg-gray-200 w-full h-full overflow-y-auto flex justify-center items-start">
+                    <div id="receipt-html-preview" class="bg-white p-8 shadow-md border border-gray-300 w-full max-w-2xl h-fit">
+                        <!-- Populated by JS -->
+                    </div>
                 </div>
-                <div class="bg-gray-50 px-4 py-3 sm:px-6 flex justify-end gap-3">
+
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 flex justify-end gap-3 rounded-b-lg">
                     <button onclick="closePdfPreview()" class="w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:w-auto sm:text-sm">
                         Close
                     </button>
@@ -185,12 +190,12 @@
 
     <!-- ==================== ORDER DETAILS MODAL POPUP ==================== -->
     <div id="orderModal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <!-- Changed to flex items-center justify-center to guarantee dead-center alignment -->
+        <div class="flex items-center justify-center min-h-screen p-4 text-center sm:p-0">
             <!-- Background overlay -->
             <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onclick="closeModal()"></div>
-            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
             
-            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
+            <div class="relative bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:max-w-2xl sm:w-full">
                 <div class="bg-blue-600 px-4 py-3 sm:px-6 flex justify-between items-center">
                     <h3 class="text-lg leading-6 font-bold text-white" id="modal-title">Order Details</h3>
                     <button onclick="closeModal()" class="text-white hover:text-gray-200"><i data-lucide="x"></i></button>
@@ -240,7 +245,7 @@
         // Global State
         let currentOrderId = 100;
         let selectedOrderForPayment = null;
-        let currentPdfBlobUrl = null;
+        let currentPdfDoc = null; // Store jsPDF object globally
         let currentPdfFilename = "Invoice.pdf";
 
         // Initialize Icons
@@ -421,9 +426,9 @@
                 const result = await response.json();
 
                 if(result.status === 'success') {
-                    showAlert(`Order #${result.orderId} successfully created! Generating PDF Preview...`);
+                    showAlert(`Order #${result.orderId} successfully created! Generating Preview...`);
                     
-                    // Generate and Preview PDF before resetting form
+                    // Generate Preview and prepare jsPDF
                     previewPDF(result.orderId, orderData, pdfItemsData, totalAmount);
 
                     // Reset Form
@@ -445,13 +450,13 @@
         }
 
         // ==========================================
-        // PDF PREVIEW & GENERATION (Using jsPDF)
+        // PREVIEW HTML & PDF GENERATION
         // ==========================================
         function previewPDF(orderId, data, itemsData, total) {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
 
-            // Header
+            // === 1. Prepare jsPDF Object (Hidden in background) ===
             doc.setFontSize(22);
             doc.setTextColor(30, 58, 138); // blue-800
             doc.text("CEMENT PRO", 14, 20);
@@ -468,7 +473,6 @@
             doc.setDrawColor(200, 200, 200);
             doc.line(14, 32, 196, 32);
 
-            // Customer Info
             doc.setFontSize(11);
             doc.setFont(undefined, 'bold');
             doc.text("Customer Information", 14, 42);
@@ -477,7 +481,6 @@
             doc.text(`Name: ${data.customerName}`, 14, 48);
             doc.text(`ID: ${data.customerId}`, 14, 54);
 
-            // Logistics Info
             doc.setFontSize(11);
             doc.setFont(undefined, 'bold');
             doc.text("Logistics", 110, 42);
@@ -486,7 +489,6 @@
             doc.text(`Lorry No: ${data.lorryNumber}`, 110, 48);
             doc.text(`Driver: ${data.driverName} (ID: ${data.driverId})`, 110, 54);
 
-            // Table using autoTable plugin
             doc.autoTable({
                 startY: 65,
                 head: [['Cement Type', 'Price / Unit', 'Quantity', 'Subtotal']],
@@ -496,43 +498,99 @@
                 styles: { fontSize: 10 }
             });
 
-            // Total Amount
             const finalY = doc.lastAutoTable.finalY || 65;
             doc.setFontSize(14);
             doc.setFont(undefined, 'bold');
             doc.setTextColor(22, 101, 52); // green-800
             doc.text(`Grand Total: $${total.toFixed(2)}`, 140, finalY + 15);
 
-            // Footer
             doc.setFontSize(9);
             doc.setFont(undefined, 'normal');
             doc.setTextColor(150, 150, 150);
             doc.text("Thank you for your business. Generated automatically by Cement Pro System.", 105, 280, { align: "center" });
 
+            // Store doc and filename globally for downloading later
+            currentPdfDoc = doc;
             currentPdfFilename = `Order_${orderId}_${data.customerName.replace(/\s+/g, '_')}.pdf`;
 
-            // Get Blob URL and show in iframe
-            currentPdfBlobUrl = doc.output('bloburl');
-            document.getElementById('pdf-preview-iframe').src = currentPdfBlobUrl;
-            
+            // === 2. Build HTML Preview inside the Modal ===
+            let itemsHtml = '';
+            itemsData.forEach(item => {
+                itemsHtml += `
+                    <tr class="border-b border-gray-200">
+                        <td class="py-3 px-2 text-gray-800">${item[0]}</td>
+                        <td class="py-3 px-2 text-center text-gray-600">${item[1]}</td>
+                        <td class="py-3 px-2 text-center font-semibold">${item[2]}</td>
+                        <td class="py-3 px-2 text-right font-semibold text-gray-800">${item[3]}</td>
+                    </tr>
+                `;
+            });
+
+            const previewHtml = `
+                <div class="border-b-2 border-blue-800 pb-4 mb-6 flex justify-between items-end">
+                    <div>
+                        <h1 class="text-3xl font-bold text-blue-800 tracking-wider">CEMENT PRO</h1>
+                        <p class="text-gray-500 text-sm mt-1">Official Order Receipt</p>
+                    </div>
+                    <div class="text-right">
+                        <h2 class="text-xl font-bold text-gray-800">Order #: ${orderId}</h2>
+                        <p class="text-sm text-gray-600 mt-1">Date: ${data.date}</p>
+                    </div>
+                </div>
+                
+                <div class="flex flex-col sm:flex-row justify-between mb-8 gap-6">
+                    <div class="w-full sm:w-1/2 bg-gray-50 p-4 rounded border">
+                        <h3 class="font-bold text-gray-700 border-b pb-2 mb-3">Customer Information</h3>
+                        <p class="text-sm mb-1"><span class="text-gray-500 font-medium">Name:</span> <span class="font-semibold text-gray-800">${data.customerName}</span></p>
+                        <p class="text-sm"><span class="text-gray-500 font-medium">ID:</span> <span class="text-gray-800">${data.customerId}</span></p>
+                    </div>
+                    <div class="w-full sm:w-1/2 bg-gray-50 p-4 rounded border">
+                        <h3 class="font-bold text-gray-700 border-b pb-2 mb-3">Logistics Details</h3>
+                        <p class="text-sm mb-1"><span class="text-gray-500 font-medium">Lorry No:</span> <span class="font-semibold text-gray-800">${data.lorryNumber}</span></p>
+                        <p class="text-sm"><span class="text-gray-500 font-medium">Driver:</span> <span class="text-gray-800">${data.driverName} (ID: ${data.driverId})</span></p>
+                    </div>
+                </div>
+
+                <table class="w-full text-sm mb-8 border-collapse">
+                    <thead class="bg-blue-800 text-white rounded-t-md">
+                        <tr>
+                            <th class="py-3 px-2 text-left font-medium">Cement Type</th>
+                            <th class="py-3 px-2 text-center font-medium">Price / Unit</th>
+                            <th class="py-3 px-2 text-center font-medium">Quantity</th>
+                            <th class="py-3 px-2 text-right font-medium">Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${itemsHtml}
+                    </tbody>
+                </table>
+
+                <div class="flex justify-end">
+                    <div class="w-full sm:w-72 border-t-2 border-gray-800 pt-3 flex justify-between items-center text-lg">
+                        <span class="font-bold text-gray-700">Grand Total:</span>
+                        <span class="font-bold text-green-700 text-2xl">$${total.toFixed(2)}</span>
+                    </div>
+                </div>
+                
+                <div class="mt-12 text-center text-gray-400 text-xs border-t pt-4">
+                    <p>Thank you for your business. Generated automatically by Cement Pro System.</p>
+                </div>
+            `;
+
+            document.getElementById('receipt-html-preview').innerHTML = previewHtml;
+
             // Show modal
             document.getElementById('pdfPreviewModal').classList.remove('hidden');
-            lucide.createIcons();
         }
 
         function closePdfPreview() {
             document.getElementById('pdfPreviewModal').classList.add('hidden');
-            document.getElementById('pdf-preview-iframe').src = '';
         }
 
         function downloadCurrentPdf() {
-            if (currentPdfBlobUrl) {
-                const a = document.createElement('a');
-                a.href = currentPdfBlobUrl;
-                a.download = currentPdfFilename;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
+            if (currentPdfDoc) {
+                // Triggers the download of the jsPDF document we created in previewPDF()
+                currentPdfDoc.save(currentPdfFilename);
                 closePdfPreview();
             }
         }
