@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cement Order & Analysis Portal</title>
+    <title>UltraTech Cement Order & Analysis Portal</title>
     <!-- Tailwind CSS for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- jsPDF and AutoTable for robust PDF generation -->
@@ -12,17 +12,8 @@
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        /* Loading Spinner */
-        .loader {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #3498db;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
-        }
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #eab308; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        /* Hide scrollbar for clean modal */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #f1f1f1; }
         ::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; }
@@ -32,16 +23,17 @@
 <body class="bg-gray-100 text-gray-800 font-sans min-h-screen flex flex-col">
 
     <!-- Navbar -->
-    <nav class="bg-blue-800 text-white shadow-lg">
+    <nav class="bg-black text-white shadow-lg border-b-4 border-yellow-500">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
-                <div class="flex items-center space-x-3">
-                    <i data-lucide="hard-hat" class="w-8 h-8 text-yellow-400"></i>
-                    <span class="font-bold text-xl tracking-wider">CEMENT PRO</span>
+                <!-- Custom UltraTech Logo -->
+                <div class="flex items-center space-x-2 bg-yellow-500 px-3 py-1.5 rounded-sm">
+                    <i data-lucide="hard-hat" class="w-6 h-6 text-black"></i>
+                    <span class="font-extrabold text-xl tracking-tighter text-black uppercase">UltraTech</span>
                 </div>
                 <div class="flex space-x-4">
-                    <button onclick="switchTab('order')" id="tab-order" class="px-3 py-2 rounded-md text-sm font-medium bg-blue-900 focus:outline-none transition-colors">Order Form</button>
-                    <button onclick="switchTab('analyze')" id="tab-analyze" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-700 focus:outline-none transition-colors">Analyze</button>
+                    <button onclick="switchTab('order')" id="tab-order" class="px-3 py-2 rounded-md text-sm font-bold bg-yellow-500 text-black focus:outline-none transition-colors">Order Form</button>
+                    <button onclick="switchTab('analyze')" id="tab-analyze" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-800 text-white focus:outline-none transition-colors">Analyze</button>
                 </div>
             </div>
         </div>
@@ -49,18 +41,16 @@
 
     <!-- Main Content -->
     <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
-        
-        <!-- ALERT BOX -->
         <div id="alert-box" class="hidden mb-6 p-4 rounded-md shadow-sm transition-all"></div>
 
         <!-- ==================== ORDER FORM TAB ==================== -->
         <section id="sec-order" class="bg-white rounded-xl shadow-md p-6 sm:p-8 border border-gray-200">
             <div class="flex justify-between items-center mb-6 pb-4 border-b">
                 <h2 class="text-2xl font-bold text-gray-800 flex items-center">
-                    <i data-lucide="clipboard-list" class="mr-2 text-blue-600"></i> Create New Order
+                    <i data-lucide="clipboard-list" class="mr-2 text-yellow-500"></i> Create New Order
                 </h2>
                 <div class="text-sm font-medium bg-gray-100 px-3 py-1 rounded text-gray-600">
-                    Next Order ID: <span id="display-order-id" class="text-blue-600 font-bold">Loading...</span>
+                    Next Order ID: <span id="display-order-id" class="text-yellow-600 font-bold">Loading...</span>
                 </div>
             </div>
 
@@ -71,11 +61,11 @@
                         <h3 class="font-semibold text-gray-700 border-b pb-2">Customer Details</h3>
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Customer Name</label>
-                            <input type="text" id="customerName" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2">
+                            <input type="text" id="customerName" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-yellow-500 focus:ring-yellow-500 border p-2">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Customer ID</label>
-                            <input type="text" id="customerId" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2">
+                            <input type="text" id="customerId" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-yellow-500 focus:ring-yellow-500 border p-2">
                         </div>
                     </div>
 
@@ -85,16 +75,16 @@
                         <div class="grid grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700">Lorry Number</label>
-                                <input type="text" id="lorryNumber" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2">
+                                <input type="text" id="lorryNumber" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-yellow-500 focus:ring-yellow-500 border p-2">
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700">Driver ID</label>
-                                <input type="text" id="driverId" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2">
+                                <input type="text" id="driverId" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-yellow-500 focus:ring-yellow-500 border p-2">
                             </div>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Driver Name</label>
-                            <input type="text" id="driverName" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2">
+                            <input type="text" id="driverName" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-yellow-500 focus:ring-yellow-500 border p-2">
                         </div>
                     </div>
                 </div>
@@ -113,10 +103,10 @@
                 <div class="flex flex-col sm:flex-row justify-between items-center border-t pt-6">
                     <div class="text-xl mb-4 sm:mb-0">
                         <span class="text-gray-600 font-medium">Total Amount:</span> 
-                        <span class="text-3xl font-bold text-green-600 ml-2" id="totalAmountDisplay">$0.00</span>
+                        <span class="text-3xl font-bold text-green-600 ml-2" id="totalAmountDisplay">Rs 0.00</span>
                     </div>
                     
-                    <button type="submit" id="submitBtn" class="w-full sm:w-auto flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 md:py-3 md:px-10 shadow-lg transition-transform hover:scale-105 disabled:opacity-50">
+                    <button type="submit" id="submitBtn" class="w-full sm:w-auto flex items-center justify-center px-8 py-3 border border-transparent text-base font-bold rounded-md text-black bg-yellow-500 hover:bg-yellow-600 md:py-3 md:px-10 shadow-lg transition-transform hover:scale-105 disabled:opacity-50">
                         <i data-lucide="eye" class="mr-2"></i> Submit & Preview PDF
                     </button>
                 </div>
@@ -126,13 +116,26 @@
         <!-- ==================== ANALYZE TAB ==================== -->
         <section id="sec-analyze" class="hidden">
             <div class="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
-                <div class="p-6 border-b flex justify-between items-center bg-gray-50">
+                <div class="p-6 border-b flex flex-col md:flex-row justify-between items-start md:items-center bg-gray-50 gap-4">
                     <h2 class="text-2xl font-bold text-gray-800 flex items-center">
-                        <i data-lucide="bar-chart-2" class="mr-2 text-blue-600"></i> Order Analysis
+                        <i data-lucide="bar-chart-2" class="mr-2 text-yellow-500"></i> Order Analysis
                     </h2>
-                    <button onclick="loadOrders()" class="flex items-center text-sm text-blue-600 hover:text-blue-800 font-medium bg-blue-100 px-3 py-1 rounded">
-                        <i data-lucide="refresh-cw" class="w-4 h-4 mr-1"></i> Refresh Data
-                    </button>
+                    
+                    <!-- Report Generation Controls -->
+                    <div class="flex flex-wrap items-center gap-2">
+                        <div class="flex items-center space-x-2 bg-white border rounded px-2 py-1 shadow-sm">
+                            <span class="text-xs text-gray-500 font-medium">From</span>
+                            <input type="date" id="reportStartDate" class="text-sm outline-none text-gray-700">
+                            <span class="text-xs text-gray-500 font-medium">To</span>
+                            <input type="date" id="reportEndDate" class="text-sm outline-none text-gray-700">
+                        </div>
+                        <button onclick="generateSalesReport()" class="flex items-center text-sm text-black bg-yellow-500 hover:bg-yellow-600 font-bold px-4 py-2 rounded shadow-sm transition-colors">
+                            <i data-lucide="file-text" class="w-4 h-4 mr-1"></i> Sales Report
+                        </button>
+                        <button onclick="loadOrders()" class="flex items-center text-sm text-black hover:text-gray-800 font-medium bg-yellow-100 hover:bg-yellow-200 px-3 py-2 rounded shadow-sm transition-colors">
+                            <i data-lucide="refresh-cw" class="w-4 h-4 mr-1"></i> Refresh
+                        </button>
+                    </div>
                 </div>
                 
                 <div class="overflow-x-auto p-0">
@@ -143,12 +146,13 @@
                                 <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Date</th>
                                 <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Customer</th>
                                 <th class="px-6 py-3 text-right text-xs font-bold text-gray-600 uppercase tracking-wider">Total</th>
+                                <th class="px-6 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Outstanding</th>
                                 <th class="px-6 py-3 text-right text-xs font-bold text-gray-600 uppercase tracking-wider">Balance</th>
                                 <th class="px-6 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Action</th>
                             </tr>
                         </thead>
                         <tbody id="ordersTableBody" class="bg-white divide-y divide-gray-200">
-                            <tr><td colspan="6" class="px-6 py-10 text-center text-gray-500">Loading orders...</td></tr>
+                            <tr><td colspan="7" class="px-6 py-10 text-center text-gray-500">Loading orders...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -159,17 +163,15 @@
 
     <!-- ==================== PREVIEW MODAL ==================== -->
     <div id="pdfPreviewModal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-        <!-- Changed to flex items-center justify-center to guarantee dead-center alignment -->
         <div class="flex items-center justify-center min-h-screen p-4 text-center sm:p-0">
             <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onclick="closePdfPreview()"></div>
             
             <div class="relative bg-white rounded-lg text-left shadow-xl transform transition-all sm:my-8 sm:max-w-4xl sm:w-full h-[85vh] flex flex-col">
-                <div class="bg-blue-600 px-4 py-3 sm:px-6 flex justify-between items-center rounded-t-lg">
+                <div class="bg-black px-4 py-3 sm:px-6 flex justify-between items-center rounded-t-lg border-b-4 border-yellow-500">
                     <h3 class="text-lg leading-6 font-bold text-white">Invoice Preview</h3>
-                    <button onclick="closePdfPreview()" class="text-white hover:text-gray-200"><i data-lucide="x"></i></button>
+                    <button onclick="closePdfPreview()" class="text-white hover:text-yellow-400"><i data-lucide="x"></i></button>
                 </div>
                 
-                <!-- Clean HTML View of the Receipt instead of iframe -->
                 <div class="flex-grow p-6 bg-gray-200 w-full h-full overflow-y-auto flex justify-center items-start">
                     <div id="receipt-html-preview" class="bg-white p-8 shadow-md border border-gray-300 w-full max-w-2xl h-fit">
                         <!-- Populated by JS -->
@@ -180,7 +182,7 @@
                     <button onclick="closePdfPreview()" class="w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:w-auto sm:text-sm">
                         Close
                     </button>
-                    <button onclick="downloadCurrentPdf()" class="w-full inline-flex justify-center items-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none sm:w-auto sm:text-sm">
+                    <button onclick="downloadCurrentPdf()" class="w-full inline-flex justify-center items-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-yellow-500 text-base font-bold text-black hover:bg-yellow-600 focus:outline-none sm:w-auto sm:text-sm">
                         <i data-lucide="download" class="mr-2 w-4 h-4"></i> Download PDF
                     </button>
                 </div>
@@ -190,15 +192,15 @@
 
     <!-- ==================== ORDER DETAILS MODAL POPUP ==================== -->
     <div id="orderModal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-        <!-- Changed to flex items-center justify-center to guarantee dead-center alignment -->
         <div class="flex items-center justify-center min-h-screen p-4 text-center sm:p-0">
-            <!-- Background overlay -->
             <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onclick="closeModal()"></div>
             
-            <div class="relative bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:max-w-2xl sm:w-full">
-                <div class="bg-blue-600 px-4 py-3 sm:px-6 flex justify-between items-center">
+            <div class="relative bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:max-w-3xl sm:w-full">
+                <div class="bg-black px-4 py-3 sm:px-6 flex justify-between items-center border-b-4 border-yellow-500">
                     <h3 class="text-lg leading-6 font-bold text-white" id="modal-title">Order Details</h3>
-                    <button onclick="closeModal()" class="text-white hover:text-gray-200"><i data-lucide="x"></i></button>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="closeModal()" class="text-white hover:text-yellow-400"><i data-lucide="x"></i></button>
+                    </div>
                 </div>
                 <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                     <div id="modal-content" class="text-sm text-gray-700">
@@ -206,20 +208,31 @@
                     </div>
                     
                     <!-- Payment Update Section -->
-                    <div class="mt-6 border-t pt-4 bg-gray-50 p-4 rounded-md">
+                    <div class="mt-6 border-t pt-4 bg-gray-50 p-4 rounded-md border border-gray-200">
                         <h4 class="font-bold text-gray-800 mb-2">Update Payment</h4>
                         <div class="flex flex-col sm:flex-row gap-3 items-center">
                             <div class="flex-grow w-full relative">
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <span class="text-gray-500 sm:text-sm">$</span>
+                                    <span class="text-gray-500 sm:text-sm">Rs</span>
                                 </div>
-                                <input type="number" id="addPaymentAmount" min="0" step="0.01" placeholder="Enter received amount" class="pl-7 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2">
+                                <input type="number" id="addPaymentAmount" min="0" step="0.01" placeholder="Enter received amount" class="pl-8 block w-full rounded-md border-gray-300 shadow-sm focus:border-yellow-500 focus:ring-yellow-500 border p-2">
                             </div>
                             <button onclick="submitPayment()" id="paymentBtn" class="w-full sm:w-auto bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 font-medium whitespace-nowrap shadow-sm">
                                 Add Payment
                             </button>
                         </div>
                     </div>
+
+                    <!-- Ledger Report Section -->
+                    <div class="mt-4 border-t pt-4 p-4 bg-yellow-50 rounded-md border border-yellow-200">
+                        <h4 class="font-bold text-black mb-3">Download Order Statement</h4>
+                        <div class="flex items-center">
+                            <button onclick="generateOrderStatement()" class="w-full bg-black text-white px-4 py-2 rounded hover:bg-gray-800 font-medium whitespace-nowrap shadow-sm flex items-center justify-center transition-colors">
+                                <i data-lucide="file-bar-chart" class="w-5 h-5 mr-2 text-yellow-500"></i> Download Order Payment History
+                            </button>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
@@ -230,26 +243,42 @@
         // CONFIGURATION
         // ==========================================
         // !! IMPORTANT: Replace this URL with your Google Apps Script Web App URL !!
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz7KAX_lgC2FfSV1cs4qTWQuKeER_oGqXPJpdB3MY2_uw4KODonviCt8IO9-TRalgM7MQ/exec";
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxJszLDMA0vrzq0kTuW6_W2TvBdc24nBo-5AjFFZJi7pL7Qb4yaL0-16WChvEHbXpSyUA/exec";
 
-        // Helper to check if URL is properly configured
         const isScriptConfigured = () => SCRIPT_URL !== "YOUR_WEB_APP_URL_HERE" && SCRIPT_URL.trim() !== "";
         
-        // Define Cement Types and Prices
         const CEMENT_CATALOG = [
-            { id: 'opc', name: 'OPC (Ordinary Portland)', price: 10.50 },
-            { id: 'ppc', name: 'PPC (Portland Pozzolana)', price: 9.00 },
-            { id: 'src', name: 'SRC (Sulfate Resisting)', price: 12.00 }
+            { id: 'opc', name: 'OPC', price: 1500.00 },
+            { id: 'ppc', name: 'PPC', price: 1500.00 },
+            
         ];
 
         // Global State
         let currentOrderId = 100;
         let selectedOrderForPayment = null;
-        let currentPdfDoc = null; // Store jsPDF object globally
+        let selectedCustomerForReport = null; 
+        let selectedCustomerNameForReport = null;
+        
+        let allOrdersData = [];   // Stores Orders
+        let allPaymentsData = []; // Stores Payment History
+
+        let currentPdfDoc = null; 
         let currentPdfFilename = "Invoice.pdf";
 
         // Initialize Icons
         lucide.createIcons();
+
+        // Helper to format date cleanly for Google Sheets (YYYY-MM-DD HH:MM:SS)
+        function getFormattedDateTime() {
+            const now = new Date();
+            const pad = num => (num < 10 ? '0' + num : num);
+            return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+        }
+
+        // Helper to format currency numbers with commas (e.g., 333,333,333.00)
+        function formatCurrency(amount) {
+            return Number(amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
 
         // ==========================================
         // INITIALIZATION & UI LOGIC
@@ -257,21 +286,35 @@
         document.addEventListener('DOMContentLoaded', () => {
             renderCementOptions();
             fetchNextOrderId();
+            
+            // Set default date range to current month (Only for Sales Report)
+            const date = new Date();
+            const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+            const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+            
+            const firstDayStr = firstDay.toISOString().split('T')[0];
+            const lastDayStr = lastDay.toISOString().split('T')[0];
+
+            document.getElementById('reportStartDate').value = firstDayStr;
+            document.getElementById('reportEndDate').value = lastDayStr;
         });
 
         function switchTab(tab) {
             document.getElementById('sec-order').classList.add('hidden');
             document.getElementById('sec-analyze').classList.add('hidden');
             
-            document.getElementById('tab-order').className = 'px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-700 focus:outline-none transition-colors';
-            document.getElementById('tab-analyze').className = 'px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-700 focus:outline-none transition-colors';
+            const inactiveClass = 'px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-800 text-white focus:outline-none transition-colors';
+            const activeClass = 'px-3 py-2 rounded-md text-sm font-bold bg-yellow-500 text-black focus:outline-none transition-colors';
+
+            document.getElementById('tab-order').className = inactiveClass;
+            document.getElementById('tab-analyze').className = inactiveClass;
 
             if(tab === 'order') {
                 document.getElementById('sec-order').classList.remove('hidden');
-                document.getElementById('tab-order').classList.add('bg-blue-900');
+                document.getElementById('tab-order').className = activeClass;
             } else {
                 document.getElementById('sec-analyze').classList.remove('hidden');
-                document.getElementById('tab-analyze').classList.add('bg-blue-900');
+                document.getElementById('tab-analyze').className = activeClass;
                 loadOrders(); // Refresh table when opening analyze tab
             }
         }
@@ -303,15 +346,15 @@
                     <div class="bg-white p-3 rounded border shadow-sm flex flex-col justify-between">
                         <div class="flex items-center justify-between mb-3">
                             <label class="flex items-center space-x-2 cursor-pointer font-medium text-gray-700">
-                                <input type="checkbox" value="${cement.id}" class="cement-checkbox form-checkbox h-5 w-5 text-blue-600 rounded" onchange="toggleQuantity('${cement.id}')">
+                                <input type="checkbox" value="${cement.id}" class="cement-checkbox form-checkbox h-5 w-5 text-yellow-500 rounded focus:ring-yellow-500" onchange="toggleQuantity('${cement.id}')">
                                 <span>${cement.name}</span>
                             </label>
                         </div>
                         <div class="flex items-center justify-between">
-                            <span class="text-sm text-gray-500 font-semibold">$${cement.price.toFixed(2)} / unit</span>
+                            <span class="text-sm text-gray-500 font-semibold">Rs ${formatCurrency(cement.price)} / unit</span>
                             <div class="flex items-center space-x-2">
                                 <span class="text-sm text-gray-500">Qty:</span>
-                                <input type="number" id="qty-${cement.id}" min="1" disabled class="w-20 border-gray-300 rounded shadow-sm focus:border-blue-500 focus:ring-blue-500 disabled:bg-gray-100 disabled:text-gray-400 p-1 text-right" oninput="calculateTotal()">
+                                <input type="number" id="qty-${cement.id}" min="1" disabled class="w-20 border-gray-300 rounded shadow-sm focus:border-yellow-500 focus:ring-yellow-500 disabled:bg-gray-100 disabled:text-gray-400 p-1 text-right" oninput="calculateTotal()">
                             </div>
                         </div>
                     </div>
@@ -345,7 +388,7 @@
                     total += cement.price * parseInt(qtyInput.value);
                 }
             });
-            document.getElementById('totalAmountDisplay').innerText = `$${total.toFixed(2)}`;
+            document.getElementById('totalAmountDisplay').innerText = `Rs ${formatCurrency(total)}`;
             return total;
         }
 
@@ -373,8 +416,7 @@
                 return;
             }
 
-            // Gather Data
-            const totalAmount = calculateTotal();
+            const totalAmount = calculateTotal(); // returns raw number
             if (totalAmount === 0) {
                 showAlert("Please select at least one cement type and quantity.", "error");
                 return;
@@ -384,9 +426,8 @@
             btn.disabled = true;
             btn.innerHTML = `<div class="loader mr-2 w-5 h-5 border-2"></div> Processing...`;
 
-            // Format Cement Details securely
             let cementDetailsArr = [];
-            let pdfItemsData = []; // Array for jsPDF autoTable
+            let pdfItemsData = []; 
             CEMENT_CATALOG.forEach(cement => {
                 const checkbox = document.querySelector(`.cement-checkbox[value="${cement.id}"]`);
                 const qtyInput = document.getElementById(`qty-${cement.id}`);
@@ -395,19 +436,19 @@
                     const subtotal = cement.price * qty;
                     cementDetailsArr.push(`${cement.name} (${qty})`);
                     
-                    // Add row data for jsPDF
                     pdfItemsData.push([
                         cement.name,
-                        `$${cement.price.toFixed(2)}`,
+                        `Rs ${formatCurrency(cement.price)}`,
                         qty.toString(),
-                        `$${subtotal.toFixed(2)}`
+                        `Rs ${formatCurrency(subtotal)}`
                     ]);
                 }
             });
 
+            // Send raw float to backend, not formatted string
             const orderData = {
                 action: 'addOrder',
-                date: new Date().toISOString().split('T')[0],
+                date: getFormattedDateTime(), 
                 customerName: document.getElementById('customerName').value,
                 customerId: document.getElementById('customerId').value,
                 lorryNumber: document.getElementById('lorryNumber').value,
@@ -420,7 +461,7 @@
             try {
                 const response = await fetch(SCRIPT_URL, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // Avoids CORS preflight
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
                     body: JSON.stringify(orderData)
                 });
                 const result = await response.json();
@@ -428,10 +469,8 @@
                 if(result.status === 'success') {
                     showAlert(`Order #${result.orderId} successfully created! Generating Preview...`);
                     
-                    // Generate Preview and prepare jsPDF
                     previewPDF(result.orderId, orderData, pdfItemsData, totalAmount);
 
-                    // Reset Form
                     document.getElementById('orderForm').reset();
                     renderCementOptions();
                     calculateTotal();
@@ -450,16 +489,16 @@
         }
 
         // ==========================================
-        // PREVIEW HTML & PDF GENERATION
+        // PREVIEW HTML & PDF GENERATION (Invoice)
         // ==========================================
         function previewPDF(orderId, data, itemsData, total) {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
 
-            // === 1. Prepare jsPDF Object (Hidden in background) ===
+            // Invoice PDF drawing
             doc.setFontSize(22);
-            doc.setTextColor(30, 58, 138); // blue-800
-            doc.text("CEMENT PRO", 14, 20);
+            doc.setTextColor(0, 0, 0); // Black Theme
+            doc.text("UltraTech Cement", 14, 20);
             
             doc.setFontSize(10);
             doc.setTextColor(100, 100, 100);
@@ -468,9 +507,13 @@
             doc.setFontSize(12);
             doc.setTextColor(0, 0, 0);
             doc.text(`Order #: ${orderId}`, 140, 20);
-            doc.text(`Date: ${data.date}`, 140, 26);
+            
+            // Format Date for invoice (Date and Time)
+            const d = new Date(data.date);
+            const dateStr = d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            doc.text(`Date: ${dateStr}`, 140, 26);
 
-            doc.setDrawColor(200, 200, 200);
+            doc.setDrawColor(0, 0, 0); // Black Line
             doc.line(14, 32, 196, 32);
 
             doc.setFontSize(11);
@@ -494,26 +537,25 @@
                 head: [['Cement Type', 'Price / Unit', 'Quantity', 'Subtotal']],
                 body: itemsData,
                 theme: 'grid',
-                headStyles: { fillColor: [30, 58, 138] },
+                headStyles: { fillColor: [0, 0, 0], textColor: [255, 204, 0] }, // Black header, Yellow text
                 styles: { fontSize: 10 }
             });
 
             const finalY = doc.lastAutoTable.finalY || 65;
             doc.setFontSize(14);
             doc.setFont(undefined, 'bold');
-            doc.setTextColor(22, 101, 52); // green-800
-            doc.text(`Grand Total: $${total.toFixed(2)}`, 140, finalY + 15);
+            doc.setTextColor(22, 101, 52); // Keep Green for totals
+            doc.text(`Grand Total: Rs ${formatCurrency(total)}`, 140, finalY + 15);
 
             doc.setFontSize(9);
             doc.setFont(undefined, 'normal');
             doc.setTextColor(150, 150, 150);
-            doc.text("Thank you for your business. Generated automatically by Cement Pro System.", 105, 280, { align: "center" });
+            doc.text("Thank you for your business...", 105, 280, { align: "center" });
 
-            // Store doc and filename globally for downloading later
             currentPdfDoc = doc;
             currentPdfFilename = `Order_${orderId}_${data.customerName.replace(/\s+/g, '_')}.pdf`;
 
-            // === 2. Build HTML Preview inside the Modal ===
+            // HTML Preview
             let itemsHtml = '';
             itemsData.forEach(item => {
                 itemsHtml += `
@@ -527,14 +569,13 @@
             });
 
             const previewHtml = `
-                <div class="border-b-2 border-blue-800 pb-4 mb-6 flex justify-between items-end">
-                    <div>
-                        <h1 class="text-3xl font-bold text-blue-800 tracking-wider">CEMENT PRO</h1>
-                        <p class="text-gray-500 text-sm mt-1">Official Order Receipt</p>
+                <div class="border-b-2 border-black pb-4 mb-6 flex justify-between items-end">
+                    <div class="flex items-center space-x-2 bg-yellow-500 px-3 py-1.5 rounded-sm">
+                        <span class="font-extrabold text-xl tracking-tighter text-black uppercase">UltraTech</span>
                     </div>
                     <div class="text-right">
                         <h2 class="text-xl font-bold text-gray-800">Order #: ${orderId}</h2>
-                        <p class="text-sm text-gray-600 mt-1">Date: ${data.date}</p>
+                        <p class="text-sm text-gray-600 mt-1">Date: ${dateStr}</p>
                     </div>
                 </div>
                 
@@ -552,7 +593,7 @@
                 </div>
 
                 <table class="w-full text-sm mb-8 border-collapse">
-                    <thead class="bg-blue-800 text-white rounded-t-md">
+                    <thead class="bg-black text-yellow-400 rounded-t-md">
                         <tr>
                             <th class="py-3 px-2 text-left font-medium">Cement Type</th>
                             <th class="py-3 px-2 text-center font-medium">Price / Unit</th>
@@ -568,18 +609,16 @@
                 <div class="flex justify-end">
                     <div class="w-full sm:w-72 border-t-2 border-gray-800 pt-3 flex justify-between items-center text-lg">
                         <span class="font-bold text-gray-700">Grand Total:</span>
-                        <span class="font-bold text-green-700 text-2xl">$${total.toFixed(2)}</span>
+                        <span class="font-bold text-green-700 text-2xl">Rs ${formatCurrency(total)}</span>
                     </div>
                 </div>
                 
                 <div class="mt-12 text-center text-gray-400 text-xs border-t pt-4">
-                    <p>Thank you for your business. Generated automatically by Cement Pro System.</p>
+                    <p>Thank you for your business. Generated automatically by UltraTech Cement System.</p>
                 </div>
             `;
 
             document.getElementById('receipt-html-preview').innerHTML = previewHtml;
-
-            // Show modal
             document.getElementById('pdfPreviewModal').classList.remove('hidden');
         }
 
@@ -589,7 +628,6 @@
 
         function downloadCurrentPdf() {
             if (currentPdfDoc) {
-                // Triggers the download of the jsPDF document we created in previewPDF()
                 currentPdfDoc.save(currentPdfFilename);
                 closePdfPreview();
             }
@@ -601,43 +639,59 @@
         async function loadOrders() {
             if(!isScriptConfigured()) return;
             const tbody = document.getElementById('ordersTableBody');
-            tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-10 text-center"><div class="flex justify-center items-center"><div class="loader border-blue-600 mr-3"></div> Loading data...</div></td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="7" class="px-6 py-10 text-center"><div class="flex justify-center items-center"><div class="loader border-yellow-500 mr-3"></div> Loading data...</div></td></tr>`;
             
             try {
-                const response = await fetch(`${SCRIPT_URL}?action=getOrders`);
+                // Now fetching getAllData to retrieve Orders AND Payments history
+                const response = await fetch(`${SCRIPT_URL}?action=getAllData`);
                 const result = await response.json();
                 
                 if(result.status === 'success') {
                     tbody.innerHTML = '';
-                    if(result.data.length === 0) {
-                        tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-4 text-center text-gray-500">No orders found.</td></tr>`;
+                    allOrdersData = result.orders || []; 
+                    allPaymentsData = result.payments || [];
+
+                    if(allOrdersData.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="7" class="px-6 py-4 text-center text-gray-500">No orders found.</td></tr>`;
                         return;
                     }
 
-                    result.data.forEach(order => {
+                    allOrdersData.forEach(order => {
                         const balance = parseFloat(order['Balance']) || 0;
                         const total = parseFloat(order['Total Amount']) || 0;
                         const statusBadge = balance <= 0 ? 
                             `<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Paid</span>` : 
                             `<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Pending</span>`;
 
-                        // Store raw order data in attribute for modal
+                        // Display Date (Only Date for main table)
+                        const d = new Date(order['Date']);
+                        const displayDate = d.toLocaleDateString();
+
+                        // Outstanding Date Calculation
+                        const today = new Date();
+                        const diffTime = Math.abs(today - d);
+                        const outstandingDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) - 1; 
+                        const outstandingDisplay = balance > 0 
+                                ? `<span class="font-medium ${outstandingDays > 5 ? 'text-red-500' : 'text-yellow-600'}">${outstandingDays} days</span>` 
+                                : `<span class="text-gray-400">-</span>`;
+
                         const encodedData = encodeURIComponent(JSON.stringify(order));
 
                         const tr = document.createElement('tr');
-                        tr.className = "hover:bg-blue-50 transition-colors cursor-pointer";
+                        tr.className = "hover:bg-yellow-50 transition-colors cursor-pointer";
                         tr.onclick = () => openModal(decodeURIComponent(encodedData));
                         tr.innerHTML = `
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#${order['Order ID']}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${order['Date']}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${displayDate}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">${order['Customer Name']}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right font-semibold">$${total.toFixed(2)}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right font-semibold">Rs ${formatCurrency(total)}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-center">${outstandingDisplay}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-right">
-                                <div class="font-bold ${balance > 0 ? 'text-red-600' : 'text-green-600'}">$${balance.toFixed(2)}</div>
+                                <div class="font-bold ${balance > 0 ? 'text-red-600' : 'text-green-600'}">Rs ${formatCurrency(balance)}</div>
                                 ${statusBadge}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium text-center">
-                                <button class="text-blue-600 hover:text-blue-900 bg-blue-50 p-1.5 rounded hover:bg-blue-100"><i data-lucide="eye" class="w-4 h-4"></i></button>
+                                <button class="text-black hover:text-gray-700 bg-yellow-100 p-1.5 rounded hover:bg-yellow-200"><i data-lucide="eye" class="w-4 h-4"></i></button>
                             </td>
                         `;
                         tbody.appendChild(tr);
@@ -645,19 +699,23 @@
                     lucide.createIcons();
                 }
             } catch (error) {
-                tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-4 text-center text-red-500">Failed to load orders. Verify URL.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" class="px-6 py-4 text-center text-red-500">Failed to load orders. Verify URL.</td></tr>`;
             }
         }
 
         function openModal(dataString) {
             const order = JSON.parse(dataString);
             selectedOrderForPayment = order['Order ID'];
+            selectedCustomerForReport = order['Customer ID'];
+            selectedCustomerNameForReport = order['Customer Name'];
             
-            // Calculate Outstanding Days
-            const orderDate = new Date(order['Date']);
+            // Format precise Date and Time for Popup Details
+            const d = new Date(order['Date']);
+            const dateTimeDisplay = d.toLocaleDateString() + ' @ ' + d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
             const today = new Date();
-            const diffTime = Math.abs(today - orderDate);
-            const outstandingDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) - 1; // 0 days if same day
+            const diffTime = Math.abs(today - d);
+            const outstandingDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) - 1;
 
             const total = parseFloat(order['Total Amount']) || 0;
             const received = parseFloat(order['Received Amount']) || 0;
@@ -667,9 +725,9 @@
                 <div class="grid grid-cols-2 gap-4 mb-4">
                     <div class="bg-gray-50 p-3 rounded border">
                         <p class="text-xs text-gray-500 uppercase font-bold">Order Info</p>
-                        <p class="font-bold text-lg text-blue-800">#${order['Order ID']}</p>
-                        <p>Date: ${order['Date']}</p>
-                        <p class="text-red-600 font-bold mt-1">
+                        <p class="font-bold text-lg text-black">#${order['Order ID']}</p>
+                        <p class="text-sm font-medium text-gray-700">${dateTimeDisplay}</p>
+                        <p class="text-red-600 font-bold mt-1 text-sm">
                             <i data-lucide="calendar" class="inline w-4 h-4"></i> Outstanding: ${outstandingDays} Days
                         </p>
                     </div>
@@ -683,24 +741,24 @@
                         <p>Lorry: <span class="font-semibold">${order['Lorry Number']}</span></p>
                         <p>Driver: <span class="font-semibold">${order['Driver Name']}</span> (${order['Driver ID']})</p>
                     </div>
-                    <div class="bg-blue-50 p-3 rounded border border-blue-200 col-span-2 sm:col-span-1">
-                        <p class="text-xs text-blue-600 uppercase font-bold">Cement Ordered</p>
-                        <p class="font-medium mt-1">${order['Cement Details']}</p>
+                    <div class="bg-yellow-50 p-3 rounded border border-yellow-200 col-span-2 sm:col-span-1">
+                        <p class="text-xs text-yellow-700 uppercase font-bold">Cement Ordered</p>
+                        <p class="font-medium mt-1 text-black">${order['Cement Details']}</p>
                     </div>
                 </div>
 
-                <div class="bg-gray-800 text-white rounded-lg p-4 grid grid-cols-3 text-center shadow-inner">
+                <div class="bg-black text-white rounded-lg p-4 grid grid-cols-3 text-center shadow-inner">
                     <div>
-                        <p class="text-xs text-gray-400 uppercase">Total</p>
-                        <p class="text-xl font-bold">$${total.toFixed(2)}</p>
+                        <p class="text-xs text-yellow-400 uppercase">Total</p>
+                        <p class="text-xl font-bold">Rs ${formatCurrency(total)}</p>
                     </div>
                     <div class="border-l border-r border-gray-600">
-                        <p class="text-xs text-gray-400 uppercase">Received</p>
-                        <p class="text-xl font-bold text-green-400">$${received.toFixed(2)}</p>
+                        <p class="text-xs text-yellow-400 uppercase">Received</p>
+                        <p class="text-xl font-bold text-green-400">Rs ${formatCurrency(received)}</p>
                     </div>
                     <div>
-                        <p class="text-xs text-gray-400 uppercase">Balance</p>
-                        <p class="text-xl font-bold ${balance > 0 ? 'text-red-400' : 'text-gray-300'}">$${balance.toFixed(2)}</p>
+                        <p class="text-xs text-yellow-400 uppercase">Balance</p>
+                        <p class="text-xl font-bold ${balance > 0 ? 'text-red-400' : 'text-gray-300'}">Rs ${formatCurrency(balance)}</p>
                     </div>
                 </div>
             `;
@@ -753,8 +811,8 @@
 
                 if(result.status === 'success') {
                     closeModal();
-                    showAlert(`Payment of $${amount} added successfully to Order #${selectedOrderForPayment}`);
-                    loadOrders(); // Refresh table
+                    showAlert(`Payment of Rs ${formatCurrency(amount)} added successfully to Order #${selectedOrderForPayment}`);
+                    loadOrders(); // Refresh table (this also fetches the new payment history)
                 } else {
                     alert(`Error: ${result.message}`);
                     btn.disabled = false;
@@ -765,6 +823,219 @@
                 btn.disabled = false;
                 btn.innerText = 'Add Payment';
             }
+        }
+
+        // ==========================================
+        // REPORTS GENERATION (jsPDF)
+        // ==========================================
+        function generateSalesReport() {
+            if(allOrdersData.length === 0) {
+                alert("No data to generate report.");
+                return;
+            }
+
+            const startStr = document.getElementById('reportStartDate').value;
+            const endStr = document.getElementById('reportEndDate').value;
+            let filtered = allOrdersData;
+
+            let reportPeriod = "All Time";
+            if (startStr && endStr) {
+                const start = new Date(startStr); start.setHours(0,0,0,0);
+                const end = new Date(endStr); end.setHours(23,59,59,999);
+                reportPeriod = `${startStr} to ${endStr}`;
+                
+                filtered = allOrdersData.filter(o => {
+                    const d = new Date(o['Date']);
+                    return d >= start && d <= end;
+                });
+            }
+
+            if(filtered.length === 0) {
+                alert("No orders found in this date range.");
+                return;
+            }
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            doc.setFontSize(18);
+            doc.setTextColor(0, 0, 0); // Black Theme
+            doc.text("UltraTech Cement - Master Sales Report", 14, 20);
+            
+            doc.setFontSize(10);
+            doc.setTextColor(100, 100, 100);
+            doc.text(`Period: ${reportPeriod}`, 14, 28);
+            doc.text(`Generated On: ${new Date().toLocaleString()}`, 14, 34);
+
+            let totalSales = 0, totalReceived = 0, totalBalance = 0, totalBags = 0;
+            const tableData = filtered.map(o => {
+                const t = parseFloat(o['Total Amount']) || 0;
+                const r = parseFloat(o['Received Amount']) || 0;
+                const b = parseFloat(o['Balance']) || 0;
+                
+                totalSales += t; totalReceived += r; totalBalance += b;
+
+                // Extract and sum up the bag quantities from the "Cement Details" text
+                const detailsStr = o['Cement Details'] || "";
+                const matches = detailsStr.match(/\((\d+)\)/g);
+                if (matches) {
+                    matches.forEach(match => {
+                        totalBags += parseInt(match.replace(/[()]/g, ''));
+                    });
+                }
+
+                return [
+                    o['Order ID'],
+                    new Date(o['Date']).toLocaleDateString(),
+                    o['Customer Name'],
+                    `Rs ${formatCurrency(t)}`,
+                    `Rs ${formatCurrency(r)}`,
+                    `Rs ${formatCurrency(b)}`
+                ];
+            });
+
+            doc.autoTable({
+                startY: 42,
+                head: [['Order ID', 'Date', 'Customer', 'Total', 'Received', 'Balance']],
+                body: tableData,
+                theme: 'striped',
+                headStyles: { fillColor: [0, 0, 0], textColor: [255, 204, 0] }, // Black header, Yellow text
+                styles: { fontSize: 9 }
+            });
+
+            const finalY = doc.lastAutoTable.finalY || 45;
+            doc.setFontSize(12);
+            doc.setFont(undefined, 'bold');
+            doc.setTextColor(0, 0, 0);
+            doc.text(`Total Cement Bags Sold: ${totalBags.toLocaleString()}`, 14, finalY + 15);
+            doc.text(`Total Sales: Rs ${formatCurrency(totalSales)}`, 14, finalY + 22);
+            doc.setTextColor(22, 101, 52);
+            doc.text(`Total Received: Rs ${formatCurrency(totalReceived)}`, 14, finalY + 29);
+            doc.setTextColor(220, 38, 38);
+            doc.text(`Total Outstanding: Rs ${formatCurrency(totalBalance)}`, 14, finalY + 36);
+
+            doc.save(`Sales_Report_${reportPeriod.replace(/ /g, '_')}.pdf`);
+        }
+
+        // ==========================================
+        // ORDER STATEMENT GENERATION (Specific Order Only)
+        // ==========================================
+        function generateOrderStatement() {
+            if(!selectedOrderForPayment) return;
+            
+            // 1. Fetch Order and Payments for this SPECIFIC Order only
+            let cOrders = allOrdersData.filter(o => o['Order ID'] == selectedOrderForPayment);
+            let cPayments = allPaymentsData.filter(p => p['Order ID'] == selectedOrderForPayment);
+
+            let ledger = [];
+
+            // 2. Add Order to ledger
+            cOrders.forEach(o => {
+                const d = new Date(o['Date']);
+                const charge = parseFloat(o['Total Amount']) || 0;
+                ledger.push({
+                    dateObj: d,
+                    ref: `ORD-#${o['Order ID']}`,
+                    desc: o['Cement Details'],
+                    charge: charge,
+                    paid: 0
+                });
+            });
+
+            // 3. Add Payments to ledger
+            cPayments.forEach(p => {
+                const d = new Date(p['Date']);
+                const paid = parseFloat(p['Amount Paid']) || 0;
+                ledger.push({
+                    dateObj: d,
+                    ref: `PAY-#${p['Payment ID']}`,
+                    desc: `Payment for Order #${p['Order ID']}`,
+                    charge: 0,
+                    paid: paid
+                });
+            });
+
+            // Sort chronologically
+            ledger.sort((a, b) => a.dateObj - b.dateObj);
+
+            let runningBalance = 0;
+            let totalBilled = 0;
+            let totalPaid = 0;
+
+            const tableData = [];
+
+            // Populate table rows
+            ledger.forEach(entry => {
+                runningBalance += entry.charge;
+                runningBalance -= entry.paid;
+                
+                totalBilled += entry.charge;
+                totalPaid += entry.paid;
+
+                // Format DateTime for the ledger line
+                const dStr = entry.dateObj.toLocaleDateString() + ' ' + entry.dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+                tableData.push([
+                    dStr,
+                    entry.ref,
+                    entry.desc,
+                    entry.charge > 0 ? `Rs ${formatCurrency(entry.charge)}` : "-",
+                    entry.paid > 0 ? `Rs ${formatCurrency(entry.paid)}` : "-",
+                    `Rs ${formatCurrency(runningBalance)}`
+                ]);
+            });
+
+            if(tableData.length === 0) {
+                alert(`No data found for order #${selectedOrderForPayment}.`);
+                return;
+            }
+
+            // 5. Generate PDF
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            doc.setFontSize(18);
+            doc.setTextColor(0, 0, 0); // Black Theme
+            doc.text("Order Payment Statement", 14, 20);
+            
+            doc.setFontSize(11);
+            doc.setTextColor(0,0,0);
+            doc.setFont(undefined, 'bold');
+            doc.text(`Customer Name: ${selectedCustomerNameForReport}`, 14, 30);
+            doc.setFont(undefined, 'normal');
+            doc.setFontSize(10);
+            doc.setTextColor(100, 100, 100);
+            doc.text(`Order ID: #${selectedOrderForPayment}`, 14, 36);
+            doc.text(`Generated: ${new Date().toLocaleString()}`, 14, 42);
+
+            doc.autoTable({
+                startY: 50,
+                head: [['Date & Time', 'Reference', 'Description', 'Charge', 'Paid', 'Balance']],
+                body: tableData,
+                theme: 'striped',
+                headStyles: { fillColor: [0, 0, 0], textColor: [255, 204, 0] }, // Black Header, Yellow Text
+                styles: { fontSize: 9 }
+            });
+
+            const finalY = doc.lastAutoTable.finalY || 50;
+            
+            // Draw Summary Box
+            doc.setDrawColor(200,200,200);
+            doc.setFillColor(249,250,251);
+            doc.roundedRect(14, finalY + 10, 182, 30, 2, 2, 'FD');
+
+            doc.setFontSize(12);
+            doc.setFont(undefined, 'bold');
+            doc.setTextColor(0, 0, 0);
+            doc.text(`Order Total: Rs ${formatCurrency(totalBilled)}`, 20, finalY + 20);
+            
+            doc.setTextColor(22, 101, 52); // Green
+            doc.text(`Total Paid: Rs ${formatCurrency(totalPaid)}`, 80, finalY + 20);
+            
+            doc.setTextColor(220, 38, 38); // Red
+            doc.text(`Balance Due: Rs ${formatCurrency(runningBalance)}`, 140, finalY + 20);
+
+            doc.save(`Order_Statement_${selectedOrderForPayment}.pdf`);
         }
     </script>
 </body>
