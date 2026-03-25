@@ -49,23 +49,39 @@
                 <h2 class="text-2xl font-bold text-gray-800 flex items-center">
                     <i data-lucide="clipboard-list" class="mr-2 text-yellow-500"></i> Create New Order
                 </h2>
-                <div class="text-sm font-medium bg-gray-100 px-3 py-1 rounded text-gray-600">
-                    Next Order ID: <span id="display-order-id" class="text-yellow-600 font-bold">Loading...</span>
-                </div>
             </div>
 
             <form id="orderForm" onsubmit="submitOrder(event)">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    
+                    <!-- Order Basics -->
+                    <div class="space-y-4 md:col-span-2">
+                        <h3 class="font-semibold text-gray-700 border-b pb-2">Order Information</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Order Form No.</label>
+                                <input type="text" id="manualOrderId" required placeholder="e.g. 1001" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-yellow-500 focus:ring-yellow-500 border p-2 font-bold text-blue-900 bg-yellow-50">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Order Date</label>
+                                <input type="date" id="orderDate" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-yellow-500 focus:ring-yellow-500 border p-2">
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Customer Info -->
                     <div class="space-y-4">
                         <h3 class="font-semibold text-gray-700 border-b pb-2">Customer Details</h3>
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Customer Name</label>
-                            <input type="text" id="customerName" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-yellow-500 focus:ring-yellow-500 border p-2">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">Customer ID</label>
-                            <input type="text" id="customerId" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-yellow-500 focus:ring-yellow-500 border p-2">
+                            <input type="text" list="customerList" id="customerName" required placeholder="Select or type name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-yellow-500 focus:ring-yellow-500 border p-2">
+                            <datalist id="customerList">
+                                <option value="Amarasiri Stores">
+                                <option value="Perera Hardware">
+                                <option value="Silva Constructions">
+                                <option value="Nuwan Enterprises">
+                                <option value="Lanka Builders">
+                            </datalist>
                         </div>
                     </div>
 
@@ -82,18 +98,29 @@
                                 <input type="text" id="driverId" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-yellow-500 focus:ring-yellow-500 border p-2">
                             </div>
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">Driver Name</label>
-                            <input type="text" id="driverName" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-yellow-500 focus:ring-yellow-500 border p-2">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Driver Name</label>
+                                <input type="text" id="driverName" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-yellow-500 focus:ring-yellow-500 border p-2">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Hire Price (per bag)</label>
+                                <div class="relative mt-1 rounded-md shadow-sm">
+                                    <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                        <span class="text-gray-500 sm:text-sm">Rs</span>
+                                    </div>
+                                    <input type="number" id="hirePrice" min="0" step="0.01" value="0" class="block w-full rounded-md border-gray-300 pl-8 focus:border-yellow-500 focus:ring-yellow-500 border p-2" oninput="calculateTotal()">
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Cement Selection -->
                 <div class="mb-8">
-                    <h3 class="font-semibold text-gray-700 border-b pb-2 mb-4">Cement Types & Quantity</h3>
+                    <h3 class="font-semibold text-gray-700 border-b pb-2 mb-4">Cement Types, Price & Quantity</h3>
                     <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6" id="cement-container">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="cement-container">
                             <!-- JS will inject cement options here -->
                         </div>
                     </div>
@@ -113,16 +140,22 @@
             </form>
         </section>
 
-        <!-- ==================== ANALYZE TAB ==================== -->
+        <!-- ==================== ANALYZE TAB (Grouped by Customer) ==================== -->
         <section id="sec-analyze" class="hidden">
             <div class="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
                 <div class="p-6 border-b flex flex-col md:flex-row justify-between items-start md:items-center bg-gray-50 gap-4">
                     <h2 class="text-2xl font-bold text-gray-800 flex items-center">
-                        <i data-lucide="bar-chart-2" class="mr-2 text-yellow-500"></i> Order Analysis
+                        <i data-lucide="users" class="mr-2 text-yellow-500"></i> Customer Analysis
                     </h2>
                     
-                    <!-- Report Generation Controls -->
+                    <!-- Report Generation & Filters -->
                     <div class="flex flex-wrap items-center gap-2">
+                        <!-- Pending Toggle -->
+                        <div class="flex items-center space-x-2 bg-white border rounded px-3 py-1.5 shadow-sm">
+                            <input type="checkbox" id="filterOutstanding" checked class="h-4 w-4 text-yellow-500 focus:ring-yellow-500 rounded cursor-pointer" onchange="renderMainAnalysisTable()">
+                            <label for="filterOutstanding" class="text-sm font-medium text-gray-700 cursor-pointer">Pending Only</label>
+                        </div>
+                        
                         <div class="flex items-center space-x-2 bg-white border rounded px-2 py-1 shadow-sm">
                             <span class="text-xs text-gray-500 font-medium">From</span>
                             <input type="date" id="reportStartDate" class="text-sm outline-none text-gray-700">
@@ -142,17 +175,16 @@
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-100">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Order ID</th>
-                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Date</th>
-                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Customer</th>
-                                <th class="px-6 py-3 text-right text-xs font-bold text-gray-600 uppercase tracking-wider">Total</th>
-                                <th class="px-6 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Outstanding</th>
-                                <th class="px-6 py-3 text-right text-xs font-bold text-gray-600 uppercase tracking-wider">Balance</th>
-                                <th class="px-6 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Action</th>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Customer Name</th>
+                                <th class="px-6 py-3 text-right text-xs font-bold text-gray-600 uppercase tracking-wider">Total Billed</th>
+                                <th class="px-6 py-3 text-right text-xs font-bold text-gray-600 uppercase tracking-wider">Total Received</th>
+                                <th class="px-6 py-3 text-right text-xs font-bold text-gray-600 uppercase tracking-wider">Total Pending</th>
+                                <th class="px-6 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Last Order Out.</th>
+                                <th class="px-6 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">View Orders</th>
                             </tr>
                         </thead>
-                        <tbody id="ordersTableBody" class="bg-white divide-y divide-gray-200">
-                            <tr><td colspan="7" class="px-6 py-10 text-center text-gray-500">Loading orders...</td></tr>
+                        <tbody id="customersTableBody" class="bg-white divide-y divide-gray-200">
+                            <tr><td colspan="6" class="px-6 py-10 text-center text-gray-500">Loading data...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -161,12 +193,113 @@
 
     </main>
 
-    <!-- ==================== PREVIEW MODAL ==================== -->
-    <div id="pdfPreviewModal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <!-- ==================== CUSTOMER ORDERS MODAL ==================== -->
+    <div id="customerOrdersModal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <div class="flex items-center justify-center min-h-screen p-4 text-center sm:p-0">
-            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onclick="closePdfPreview()"></div>
+            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onclick="closeCustomerOrdersModal()"></div>
             
-            <div class="relative bg-white rounded-lg text-left shadow-xl transform transition-all sm:my-8 sm:max-w-4xl sm:w-full h-[85vh] flex flex-col">
+            <div class="relative bg-white rounded-lg text-left shadow-xl transform transition-all sm:my-8 sm:max-w-5xl sm:w-full max-h-[85vh] flex flex-col">
+                <div class="bg-black px-4 py-3 sm:px-6 flex justify-between items-center rounded-t-lg border-b-4 border-yellow-500">
+                    <h3 class="text-lg leading-6 font-bold text-white flex items-center">
+                        <i data-lucide="folder-open" class="mr-2 text-yellow-500"></i> Orders for: <span id="customerModalName" class="ml-2 text-yellow-500"></span>
+                    </h3>
+                    <button onclick="closeCustomerOrdersModal()" class="text-white hover:text-yellow-400"><i data-lucide="x"></i></button>
+                </div>
+                
+                <!-- Order Filter Toolbar -->
+                <div class="bg-gray-100 px-6 py-2 border-b border-gray-200 flex justify-between items-center">
+                    <span class="text-sm text-gray-600 font-bold uppercase tracking-wider">Order History</span>
+                    <label class="flex items-center space-x-2 cursor-pointer bg-white px-3 py-1 rounded shadow-sm border border-gray-300">
+                        <input type="checkbox" id="filterModalOutstanding" checked class="form-checkbox h-4 w-4 text-yellow-500 focus:ring-yellow-500 rounded cursor-pointer" onchange="renderCustomerOrders()">
+                        <span class="text-sm font-bold text-gray-700">Show Pending Orders Only</span>
+                    </label>
+                </div>
+
+                <div class="flex-grow p-0 bg-white w-full h-full overflow-y-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50 sticky top-0 shadow-sm">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Order ID</th>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Date</th>
+                                <th class="px-6 py-3 text-right text-xs font-bold text-gray-600 uppercase tracking-wider">Order Total</th>
+                                <th class="px-6 py-3 text-right text-xs font-bold text-gray-600 uppercase tracking-wider">Balance</th>
+                                <th class="px-6 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Outstanding</th>
+                                <th class="px-6 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">View Details</th>
+                            </tr>
+                        </thead>
+                        <tbody id="specificCustomerOrdersBody" class="bg-white divide-y divide-gray-200">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="bg-gray-100 px-4 py-3 sm:px-6 flex justify-end gap-3 rounded-b-lg border-t border-gray-200">
+                    <button onclick="closeCustomerOrdersModal()" class="w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:w-auto sm:text-sm">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ==================== ORDER DETAILS MODAL POPUP (Stacked on top z-[60]) ==================== -->
+    <div id="orderModal" class="fixed inset-0 z-[60] hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-center justify-center min-h-screen p-4 text-center sm:p-0">
+            <!-- Translucent overlay to stand out above customer modal -->
+            <div class="fixed inset-0 bg-gray-800 bg-opacity-80 transition-opacity" aria-hidden="true" onclick="closeOrderModal()"></div>
+            
+            <div class="relative bg-white rounded-lg text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:max-w-3xl sm:w-full">
+                <div class="bg-black px-4 py-3 sm:px-6 flex justify-between items-center border-b-4 border-yellow-500">
+                    <h3 class="text-lg leading-6 font-bold text-white" id="modal-title">Detailed Order View</h3>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="closeOrderModal()" class="text-white hover:text-yellow-400"><i data-lucide="x"></i></button>
+                    </div>
+                </div>
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div id="modal-content" class="text-sm text-gray-700">
+                        <!-- Content injected via JS -->
+                    </div>
+                    
+                    <!-- Payment Update Section -->
+                    <div class="mt-6 border-t pt-4 bg-gray-50 p-4 rounded-md border border-gray-200">
+                        <h4 class="font-bold text-gray-800 mb-2">Add New Payment</h4>
+                        <div class="flex flex-col sm:flex-row gap-3 items-center">
+                            <div class="flex-grow w-full relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span class="text-gray-500 sm:text-sm">Rs</span>
+                                </div>
+                                <input type="number" id="addPaymentAmount" min="0" step="0.01" placeholder="Enter received amount" class="pl-8 block w-full rounded-md border-gray-300 shadow-sm focus:border-yellow-500 focus:ring-yellow-500 border p-2">
+                            </div>
+                            <button onclick="submitPayment()" id="paymentBtn" class="w-full sm:w-auto bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 font-medium whitespace-nowrap shadow-sm">
+                                Submit Payment
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Ledger Report Section -->
+                    <div class="mt-4 border-t pt-4 p-4 bg-yellow-50 rounded-md border border-yellow-200 flex justify-between items-center">
+                        <div>
+                            <h4 class="font-bold text-black">Order Statement</h4>
+                            <p class="text-xs text-gray-600">Download the detailed bill and payment history for this specific order.</p>
+                        </div>
+                        <button onclick="generateOrderStatement()" class="bg-black text-white px-4 py-2 rounded hover:bg-gray-800 font-medium whitespace-nowrap shadow-sm flex items-center transition-colors">
+                            <i data-lucide="download" class="w-4 h-4 mr-2 text-yellow-500"></i> Download PDF
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ==================== PREVIEW MODAL (Highest z-index z-[70]) ==================== -->
+    <div id="pdfPreviewModal" class="fixed inset-0 z-[70] hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-center justify-center min-h-screen p-4 text-center sm:p-0">
+            <div class="fixed inset-0 bg-gray-900 bg-opacity-90 transition-opacity" aria-hidden="true" onclick="closePdfPreview()"></div>
+            
+            <div class="relative bg-white rounded-lg text-left shadow-2xl transform transition-all sm:my-8 sm:max-w-4xl sm:w-full h-[85vh] flex flex-col">
                 <div class="bg-black px-4 py-3 sm:px-6 flex justify-between items-center rounded-t-lg border-b-4 border-yellow-500">
                     <h3 class="text-lg leading-6 font-bold text-white">Invoice Preview</h3>
                     <button onclick="closePdfPreview()" class="text-white hover:text-yellow-400"><i data-lucide="x"></i></button>
@@ -190,74 +323,25 @@
         </div>
     </div>
 
-    <!-- ==================== ORDER DETAILS MODAL POPUP ==================== -->
-    <div id="orderModal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-        <div class="flex items-center justify-center min-h-screen p-4 text-center sm:p-0">
-            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onclick="closeModal()"></div>
-            
-            <div class="relative bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:max-w-3xl sm:w-full">
-                <div class="bg-black px-4 py-3 sm:px-6 flex justify-between items-center border-b-4 border-yellow-500">
-                    <h3 class="text-lg leading-6 font-bold text-white" id="modal-title">Order Details</h3>
-                    <div class="flex items-center space-x-2">
-                        <button onclick="closeModal()" class="text-white hover:text-yellow-400"><i data-lucide="x"></i></button>
-                    </div>
-                </div>
-                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                    <div id="modal-content" class="text-sm text-gray-700">
-                        <!-- Content injected via JS -->
-                    </div>
-                    
-                    <!-- Payment Update Section -->
-                    <div class="mt-6 border-t pt-4 bg-gray-50 p-4 rounded-md border border-gray-200">
-                        <h4 class="font-bold text-gray-800 mb-2">Update Payment</h4>
-                        <div class="flex flex-col sm:flex-row gap-3 items-center">
-                            <div class="flex-grow w-full relative">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <span class="text-gray-500 sm:text-sm">Rs</span>
-                                </div>
-                                <input type="number" id="addPaymentAmount" min="0" step="0.01" placeholder="Enter received amount" class="pl-8 block w-full rounded-md border-gray-300 shadow-sm focus:border-yellow-500 focus:ring-yellow-500 border p-2">
-                            </div>
-                            <button onclick="submitPayment()" id="paymentBtn" class="w-full sm:w-auto bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 font-medium whitespace-nowrap shadow-sm">
-                                Add Payment
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Ledger Report Section -->
-                    <div class="mt-4 border-t pt-4 p-4 bg-yellow-50 rounded-md border border-yellow-200">
-                        <h4 class="font-bold text-black mb-3">Download Order Statement</h4>
-                        <div class="flex items-center">
-                            <button onclick="generateOrderStatement()" class="w-full bg-black text-white px-4 py-2 rounded hover:bg-gray-800 font-medium whitespace-nowrap shadow-sm flex items-center justify-center transition-colors">
-                                <i data-lucide="file-bar-chart" class="w-5 h-5 mr-2 text-yellow-500"></i> Download Order Payment History
-                            </button>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-    </div>
 
     <script>
         // ==========================================
         // CONFIGURATION
         // ==========================================
         // !! IMPORTANT: Replace this URL with your Google Apps Script Web App URL !!
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxJszLDMA0vrzq0kTuW6_W2TvBdc24nBo-5AjFFZJi7pL7Qb4yaL0-16WChvEHbXpSyUA/exec";
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyroEs3pF2beOaE8_NlY1LM5uso5nVJ1wVonMnkrH8u3qKEDj2dP4wroS1GnQAVf_KriQ/exec";
 
         const isScriptConfigured = () => SCRIPT_URL !== "YOUR_WEB_APP_URL_HERE" && SCRIPT_URL.trim() !== "";
         
         const CEMENT_CATALOG = [
             { id: 'opc', name: 'OPC', price: 1500.00 },
             { id: 'ppc', name: 'PPC', price: 1500.00 },
-            
         ];
 
         // Global State
-        let currentOrderId = 100;
         let selectedOrderForPayment = null;
-        let selectedCustomerForReport = null; 
         let selectedCustomerNameForReport = null;
+        let currentlyViewingCustomerName = null;
         
         let allOrdersData = [];   // Stores Orders
         let allPaymentsData = []; // Stores Payment History
@@ -269,10 +353,9 @@
         lucide.createIcons();
 
         // Helper to format date cleanly for Google Sheets (YYYY-MM-DD HH:MM:SS)
-        function getFormattedDateTime() {
-            const now = new Date();
+        function getFormattedDateTime(dateObj) {
             const pad = num => (num < 10 ? '0' + num : num);
-            return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+            return `${dateObj.getFullYear()}-${pad(dateObj.getMonth() + 1)}-${pad(dateObj.getDate())} ${pad(dateObj.getHours())}:${pad(dateObj.getMinutes())}:${pad(dateObj.getSeconds())}`;
         }
 
         // Helper to format currency numbers with commas (e.g., 333,333,333.00)
@@ -285,8 +368,11 @@
         // ==========================================
         document.addEventListener('DOMContentLoaded', () => {
             renderCementOptions();
-            fetchNextOrderId();
             
+            // Set today's date in the manual order date input
+            const todayStr = new Date().toISOString().split('T')[0];
+            document.getElementById('orderDate').value = todayStr;
+
             // Set default date range to current month (Only for Sales Report)
             const date = new Date();
             const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
@@ -344,17 +430,20 @@
             CEMENT_CATALOG.forEach(cement => {
                 const html = `
                     <div class="bg-white p-3 rounded border shadow-sm flex flex-col justify-between">
-                        <div class="flex items-center justify-between mb-3">
-                            <label class="flex items-center space-x-2 cursor-pointer font-medium text-gray-700">
-                                <input type="checkbox" value="${cement.id}" class="cement-checkbox form-checkbox h-5 w-5 text-yellow-500 rounded focus:ring-yellow-500" onchange="toggleQuantity('${cement.id}')">
+                        <div class="flex items-center justify-between mb-3 border-b pb-2">
+                            <label class="flex items-center space-x-2 cursor-pointer font-bold text-gray-700">
+                                <input type="checkbox" value="${cement.id}" class="cement-checkbox form-checkbox h-5 w-5 text-yellow-500 rounded focus:ring-yellow-500" onchange="toggleCement('${cement.id}')">
                                 <span>${cement.name}</span>
                             </label>
                         </div>
-                        <div class="flex items-center justify-between">
-                            <span class="text-sm text-gray-500 font-semibold">Rs ${formatCurrency(cement.price)} / unit</span>
-                            <div class="flex items-center space-x-2">
-                                <span class="text-sm text-gray-500">Qty:</span>
-                                <input type="number" id="qty-${cement.id}" min="1" disabled class="w-20 border-gray-300 rounded shadow-sm focus:border-yellow-500 focus:ring-yellow-500 disabled:bg-gray-100 disabled:text-gray-400 p-1 text-right" oninput="calculateTotal()">
+                        <div class="flex flex-col space-y-2 mt-1">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-500">Price (Rs):</span>
+                                <input type="number" id="price-${cement.id}" min="0" step="0.01" disabled class="w-24 border-gray-300 rounded shadow-sm focus:border-yellow-500 focus:ring-yellow-500 disabled:bg-gray-100 disabled:text-gray-400 p-1 text-right" oninput="calculateTotal()">
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-500">Quantity:</span>
+                                <input type="number" id="qty-${cement.id}" min="1" disabled class="w-24 border-gray-300 rounded shadow-sm focus:border-yellow-500 focus:ring-yellow-500 disabled:bg-gray-100 disabled:text-gray-400 p-1 text-right" oninput="calculateTotal()">
                             </div>
                         </div>
                     </div>
@@ -363,52 +452,59 @@
             });
         }
 
-        function toggleQuantity(id) {
+        function toggleCement(id) {
             const checkbox = document.querySelector(`.cement-checkbox[value="${id}"]`);
             const qtyInput = document.getElementById(`qty-${id}`);
+            const priceInput = document.getElementById(`price-${id}`);
             
             if (checkbox.checked) {
                 qtyInput.disabled = false;
+                priceInput.disabled = false;
                 qtyInput.value = 1;
+                
+                // Pre-fill the default catalog price
+                const cementItem = CEMENT_CATALOG.find(c => c.id === id);
+                priceInput.value = cementItem.price;
+                
                 qtyInput.focus();
             } else {
                 qtyInput.disabled = true;
+                priceInput.disabled = true;
                 qtyInput.value = '';
+                priceInput.value = '';
             }
             calculateTotal();
         }
 
         function calculateTotal() {
             let total = 0;
+            let totalBags = 0;
+            
             CEMENT_CATALOG.forEach(cement => {
                 const checkbox = document.querySelector(`.cement-checkbox[value="${cement.id}"]`);
                 const qtyInput = document.getElementById(`qty-${cement.id}`);
+                const priceInput = document.getElementById(`price-${cement.id}`);
                 
-                if (checkbox.checked && qtyInput.value) {
-                    total += cement.price * parseInt(qtyInput.value);
+                if (checkbox.checked && qtyInput.value && priceInput.value) {
+                    const qty = parseInt(qtyInput.value);
+                    total += parseFloat(priceInput.value) * qty;
+                    totalBags += qty;
                 }
             });
-            document.getElementById('totalAmountDisplay').innerText = `Rs ${formatCurrency(total)}`;
-            return total;
+            
+            const hirePriceInput = document.getElementById('hirePrice');
+            const hirePrice = hirePriceInput && hirePriceInput.value ? parseFloat(hirePriceInput.value) : 0;
+            const totalHire = hirePrice * totalBags;
+            
+            const grandTotal = total + totalHire;
+            
+            document.getElementById('totalAmountDisplay').innerText = `Rs ${formatCurrency(grandTotal)}`;
+            return grandTotal;
         }
 
         // ==========================================
         // API COMMUNICATION & ACTIONS
         // ==========================================
-        async function fetchNextOrderId() {
-            if(!isScriptConfigured()) return;
-            try {
-                const response = await fetch(`${SCRIPT_URL}?action=getNextOrderId`);
-                const result = await response.json();
-                if(result.status === 'success') {
-                    currentOrderId = result.orderId;
-                    document.getElementById('display-order-id').innerText = currentOrderId;
-                }
-            } catch (error) {
-                console.error("Error fetching Order ID", error);
-            }
-        }
-
         async function submitOrder(e) {
             e.preventDefault();
             if(!isScriptConfigured()) {
@@ -422,35 +518,69 @@
                 return;
             }
 
+            const manualOrderIdStr = document.getElementById('manualOrderId').value;
+
             const btn = document.getElementById('submitBtn');
             btn.disabled = true;
             btn.innerHTML = `<div class="loader mr-2 w-5 h-5 border-2"></div> Processing...`;
 
             let cementDetailsArr = [];
             let pdfItemsData = []; 
+            let totalBags = 0;
+            
             CEMENT_CATALOG.forEach(cement => {
                 const checkbox = document.querySelector(`.cement-checkbox[value="${cement.id}"]`);
                 const qtyInput = document.getElementById(`qty-${cement.id}`);
-                if (checkbox.checked && qtyInput.value) {
+                const priceInput = document.getElementById(`price-${cement.id}`);
+                
+                if (checkbox.checked && qtyInput.value && priceInput.value) {
                     const qty = parseInt(qtyInput.value);
-                    const subtotal = cement.price * qty;
-                    cementDetailsArr.push(`${cement.name} (${qty})`);
+                    const price = parseFloat(priceInput.value);
+                    const subtotal = price * qty;
+                    totalBags += qty;
+                    
+                    // Format explicitly using 'x bags' for the regex in the sales report
+                    cementDetailsArr.push(`${qty}x ${cement.name} @ Rs${price}`);
                     
                     pdfItemsData.push([
                         cement.name,
-                        `Rs ${formatCurrency(cement.price)}`,
+                        `Rs ${formatCurrency(price)}`,
                         qty.toString(),
                         `Rs ${formatCurrency(subtotal)}`
                     ]);
                 }
             });
 
+            // Calculate and inject Lorry Hire into receipt if applicable
+            const hirePriceInput = document.getElementById('hirePrice');
+            const hirePrice = hirePriceInput && hirePriceInput.value ? parseFloat(hirePriceInput.value) : 0;
+            const totalHire = hirePrice * totalBags;
+
+            if (totalHire > 0) {
+                // Ensure we don't use the letter 'x' in this string so the regex in Sales Report doesn't double-count bags
+                cementDetailsArr.push(`Hire: ${totalBags} bags @ Rs${hirePrice}`);
+                
+                pdfItemsData.push([
+                    'Lorry Hire',
+                    `Rs ${formatCurrency(hirePrice)}`,
+                    totalBags.toString(),
+                    `Rs ${formatCurrency(totalHire)}`
+                ]);
+            }
+
+            // Combine manual date with current time for ledger accuracy
+            const manualDateStr = document.getElementById('orderDate').value;
+            const now = new Date();
+            const compositeDate = new Date(manualDateStr);
+            compositeDate.setHours(now.getHours(), now.getMinutes(), now.getSeconds());
+
             // Send raw float to backend, not formatted string
             const orderData = {
                 action: 'addOrder',
-                date: getFormattedDateTime(), 
+                orderId: manualOrderIdStr, 
+                date: getFormattedDateTime(compositeDate), 
                 customerName: document.getElementById('customerName').value,
-                customerId: document.getElementById('customerId').value,
+                customerId: "", // Keep key empty to avoid breaking Apps Script column structure
                 lorryNumber: document.getElementById('lorryNumber').value,
                 driverName: document.getElementById('driverName').value,
                 driverId: document.getElementById('driverId').value,
@@ -467,15 +597,16 @@
                 const result = await response.json();
 
                 if(result.status === 'success') {
-                    showAlert(`Order #${result.orderId} successfully created! Generating Preview...`);
+                    showAlert(`Order #${manualOrderIdStr} successfully created! Generating Preview...`);
                     
-                    previewPDF(result.orderId, orderData, pdfItemsData, totalAmount);
+                    previewPDF(manualOrderIdStr, orderData, pdfItemsData, totalAmount);
 
                     document.getElementById('orderForm').reset();
                     renderCementOptions();
                     calculateTotal();
-                    currentOrderId = result.orderId + 1;
-                    document.getElementById('display-order-id').innerText = currentOrderId;
+                    
+                    // Reset date picker to today
+                    document.getElementById('orderDate').value = new Date().toISOString().split('T')[0];
                 } else {
                     showAlert(`Error: ${result.message}`, "error");
                 }
@@ -522,7 +653,6 @@
             doc.setFont(undefined, 'normal');
             doc.setFontSize(10);
             doc.text(`Name: ${data.customerName}`, 14, 48);
-            doc.text(`ID: ${data.customerId}`, 14, 54);
 
             doc.setFontSize(11);
             doc.setFont(undefined, 'bold');
@@ -550,7 +680,7 @@
             doc.setFontSize(9);
             doc.setFont(undefined, 'normal');
             doc.setTextColor(150, 150, 150);
-            doc.text("Thank you for your business...", 105, 280, { align: "center" });
+            doc.text("Thank you for your business.", 105, 280, { align: "center" });
 
             currentPdfDoc = doc;
             currentPdfFilename = `Order_${orderId}_${data.customerName.replace(/\s+/g, '_')}.pdf`;
@@ -583,7 +713,6 @@
                     <div class="w-full sm:w-1/2 bg-gray-50 p-4 rounded border">
                         <h3 class="font-bold text-gray-700 border-b pb-2 mb-3">Customer Information</h3>
                         <p class="text-sm mb-1"><span class="text-gray-500 font-medium">Name:</span> <span class="font-semibold text-gray-800">${data.customerName}</span></p>
-                        <p class="text-sm"><span class="text-gray-500 font-medium">ID:</span> <span class="text-gray-800">${data.customerId}</span></p>
                     </div>
                     <div class="w-full sm:w-1/2 bg-gray-50 p-4 rounded border">
                         <h3 class="font-bold text-gray-700 border-b pb-2 mb-3">Logistics Details</h3>
@@ -614,7 +743,7 @@
                 </div>
                 
                 <div class="mt-12 text-center text-gray-400 text-xs border-t pt-4">
-                    <p>Thank you for your business. Generated automatically by UltraTech Cement System.</p>
+                    <p>Thank you for your business.</p>
                 </div>
             `;
 
@@ -634,82 +763,190 @@
         }
 
         // ==========================================
-        // ANALYSIS & MODAL LOGIC
+        // ANALYSIS & MODAL LOGIC (Grouped View)
         // ==========================================
         async function loadOrders() {
             if(!isScriptConfigured()) return;
-            const tbody = document.getElementById('ordersTableBody');
-            tbody.innerHTML = `<tr><td colspan="7" class="px-6 py-10 text-center"><div class="flex justify-center items-center"><div class="loader border-yellow-500 mr-3"></div> Loading data...</div></td></tr>`;
+            const tbody = document.getElementById('customersTableBody');
+            tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-10 text-center"><div class="flex justify-center items-center"><div class="loader border-yellow-500 mr-3"></div> Loading analysis data...</div></td></tr>`;
             
             try {
-                // Now fetching getAllData to retrieve Orders AND Payments history
                 const response = await fetch(`${SCRIPT_URL}?action=getAllData`);
                 const result = await response.json();
                 
                 if(result.status === 'success') {
-                    tbody.innerHTML = '';
                     allOrdersData = result.orders || []; 
                     allPaymentsData = result.payments || [];
-
-                    if(allOrdersData.length === 0) {
-                        tbody.innerHTML = `<tr><td colspan="7" class="px-6 py-4 text-center text-gray-500">No orders found.</td></tr>`;
-                        return;
-                    }
-
-                    allOrdersData.forEach(order => {
-                        const balance = parseFloat(order['Balance']) || 0;
-                        const total = parseFloat(order['Total Amount']) || 0;
-                        const statusBadge = balance <= 0 ? 
-                            `<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Paid</span>` : 
-                            `<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Pending</span>`;
-
-                        // Display Date (Only Date for main table)
-                        const d = new Date(order['Date']);
-                        const displayDate = d.toLocaleDateString();
-
-                        // Outstanding Date Calculation
-                        const today = new Date();
-                        const diffTime = Math.abs(today - d);
-                        const outstandingDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) - 1; 
-                        const outstandingDisplay = balance > 0 
-                                ? `<span class="font-medium ${outstandingDays > 5 ? 'text-red-500' : 'text-yellow-600'}">${outstandingDays} days</span>` 
-                                : `<span class="text-gray-400">-</span>`;
-
-                        const encodedData = encodeURIComponent(JSON.stringify(order));
-
-                        const tr = document.createElement('tr');
-                        tr.className = "hover:bg-yellow-50 transition-colors cursor-pointer";
-                        tr.onclick = () => openModal(decodeURIComponent(encodedData));
-                        tr.innerHTML = `
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#${order['Order ID']}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${displayDate}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">${order['Customer Name']}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right font-semibold">Rs ${formatCurrency(total)}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-center">${outstandingDisplay}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-right">
-                                <div class="font-bold ${balance > 0 ? 'text-red-600' : 'text-green-600'}">Rs ${formatCurrency(balance)}</div>
-                                ${statusBadge}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium text-center">
-                                <button class="text-black hover:text-gray-700 bg-yellow-100 p-1.5 rounded hover:bg-yellow-200"><i data-lucide="eye" class="w-4 h-4"></i></button>
-                            </td>
-                        `;
-                        tbody.appendChild(tr);
-                    });
-                    lucide.createIcons();
+                    renderMainAnalysisTable();
                 }
             } catch (error) {
-                tbody.innerHTML = `<tr><td colspan="7" class="px-6 py-4 text-center text-red-500">Failed to load orders. Verify URL.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-4 text-center text-red-500">Failed to load data. Verify URL.</td></tr>`;
             }
         }
 
-        function openModal(dataString) {
+        function renderMainAnalysisTable() {
+            const tbody = document.getElementById('customersTableBody');
+            tbody.innerHTML = '';
+
+            if(allOrdersData.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-4 text-center text-gray-500">No data found.</td></tr>`;
+                return;
+            }
+
+            const filterOutstanding = document.getElementById('filterOutstanding').checked;
+
+            // Process Data: Group by Customer Name
+            const customersMap = {};
+            
+            allOrdersData.forEach(order => {
+                const cid = order['Customer Name']; 
+                
+                if (!customersMap[cid]) {
+                    customersMap[cid] = {
+                        name: cid,
+                        totalBilled: 0,
+                        totalReceived: 0,
+                        totalBalance: 0,
+                        lastOrderDate: new Date(0)
+                    };
+                }
+                
+                const t = parseFloat(order['Total Amount']) || 0;
+                const b = parseFloat(order['Balance']) || 0;
+                const r = parseFloat(order['Received Amount']) || 0;
+                const d = new Date(order['Date']);
+
+                customersMap[cid].totalBilled += t;
+                customersMap[cid].totalBalance += b;
+                customersMap[cid].totalReceived += r;
+                
+                if (d > customersMap[cid].lastOrderDate) {
+                    customersMap[cid].lastOrderDate = d;
+                }
+            });
+
+            let hasVisibleCustomers = false;
+
+            // Render Customer Rows
+            Object.values(customersMap).forEach(cust => {
+                // If "Pending Only" is checked, skip fully paid customers
+                if(filterOutstanding && cust.totalBalance <= 0) return;
+
+                hasVisibleCustomers = true;
+
+                // Outstanding calculation based on their LATEST order
+                const today = new Date();
+                const diffTime = Math.abs(today - cust.lastOrderDate);
+                const outstandingDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) - 1;
+                
+                const outstandingDisplay = cust.totalBalance > 0 
+                        ? `<span class="font-medium ${outstandingDays > 5 ? 'text-red-500' : 'text-yellow-600'}">${outstandingDays} days</span>` 
+                        : `<span class="text-gray-400">-</span>`;
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-yellow-50 transition-colors cursor-pointer";
+                tr.onclick = () => openCustomerOrdersModal(cust.name);
+                tr.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-bold">${cust.name}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right font-medium">Rs ${formatCurrency(cust.totalBilled)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-right text-green-600 font-bold">Rs ${formatCurrency(cust.totalReceived)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-right">
+                        <div class="font-bold ${cust.totalBalance > 0 ? 'text-red-600' : 'text-green-600'}">Rs ${formatCurrency(cust.totalBalance)}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-center">${outstandingDisplay}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium text-center">
+                        <button class="text-black hover:text-gray-700 bg-yellow-100 p-1.5 rounded hover:bg-yellow-200" title="View Orders for Customer"><i data-lucide="folder-open" class="w-4 h-4"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            if(!hasVisibleCustomers) {
+                tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-4 text-center text-gray-500">No pending balances found. Check "Pending Only" to view all.</td></tr>`;
+            }
+
+            lucide.createIcons();
+        }
+
+        // ==========================================
+        // CUSTOMER SPECIFIC ORDERS POPUP
+        // ==========================================
+        function openCustomerOrdersModal(customerName) {
+            currentlyViewingCustomerName = customerName;
+            document.getElementById('customerModalName').innerText = customerName;
+            
+            renderCustomerOrders();
+            
+            document.getElementById('customerOrdersModal').classList.remove('hidden');
+        }
+
+        function renderCustomerOrders() {
+            const tbody = document.getElementById('specificCustomerOrdersBody');
+            tbody.innerHTML = '';
+
+            const filterOutstanding = document.getElementById('filterModalOutstanding').checked;
+
+            // Filter and sort by Date (Newest First) using Customer Name
+            let custOrders = allOrdersData.filter(o => o['Customer Name'] == currentlyViewingCustomerName)
+                                            .sort((a, b) => new Date(b['Date']) - new Date(a['Date']));
+
+            // Filter out paid orders if checkbox is checked
+            if(filterOutstanding) {
+                custOrders = custOrders.filter(o => (parseFloat(o['Balance']) || 0) > 0);
+            }
+
+            if(custOrders.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-4 text-center text-gray-500">No matching orders found.</td></tr>`;
+                return;
+            }
+
+            custOrders.forEach(order => {
+                const balance = parseFloat(order['Balance']) || 0;
+                const total = parseFloat(order['Total Amount']) || 0;
+
+                const d = new Date(order['Date']);
+                const displayDate = d.toLocaleDateString();
+
+                const today = new Date();
+                const diffTime = Math.abs(today - d);
+                const outstandingDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) - 1; 
+                const outstandingDisplay = balance > 0 
+                        ? `<span class="font-medium ${outstandingDays > 5 ? 'text-red-500' : 'text-yellow-600'}">${outstandingDays} days</span>` 
+                        : `<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Paid</span>`;
+
+                const encodedData = encodeURIComponent(JSON.stringify(order));
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-yellow-50 transition-colors cursor-pointer";
+                tr.onclick = () => openOrderModal(decodeURIComponent(encodedData));
+                tr.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#${order['Order ID']}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${displayDate}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right font-medium">Rs ${formatCurrency(total)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-bold ${balance > 0 ? 'text-red-600' : 'text-green-600'}">Rs ${formatCurrency(balance)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-center">${outstandingDisplay}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium text-center">
+                        <button class="text-black hover:text-gray-700 bg-yellow-100 p-1.5 rounded hover:bg-yellow-200"><i data-lucide="eye" class="w-4 h-4"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+            lucide.createIcons();
+        }
+
+        function closeCustomerOrdersModal() {
+            document.getElementById('customerOrdersModal').classList.add('hidden');
+            currentlyViewingCustomerName = null;
+        }
+
+        // ==========================================
+        // SPECIFIC ORDER DETAILS MODAL (Stacked)
+        // ==========================================
+        function openOrderModal(dataString) {
             const order = JSON.parse(dataString);
             selectedOrderForPayment = order['Order ID'];
-            selectedCustomerForReport = order['Customer ID'];
             selectedCustomerNameForReport = order['Customer Name'];
             
-            // Format precise Date and Time for Popup Details
             const d = new Date(order['Date']);
             const dateTimeDisplay = d.toLocaleDateString() + ' @ ' + d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 
@@ -734,7 +971,6 @@
                     <div class="bg-gray-50 p-3 rounded border">
                         <p class="text-xs text-gray-500 uppercase font-bold">Customer</p>
                         <p class="font-bold text-gray-800">${order['Customer Name']}</p>
-                        <p>ID: ${order['Customer ID']}</p>
                     </div>
                     <div class="bg-gray-50 p-3 rounded border col-span-2 sm:col-span-1">
                         <p class="text-xs text-gray-500 uppercase font-bold">Logistics</p>
@@ -780,7 +1016,7 @@
             lucide.createIcons();
         }
 
-        function closeModal() {
+        function closeOrderModal() {
             document.getElementById('orderModal').classList.add('hidden');
             selectedOrderForPayment = null;
         }
@@ -810,9 +1046,17 @@
                 const result = await response.json();
 
                 if(result.status === 'success') {
-                    closeModal();
+                    closeOrderModal();
                     showAlert(`Payment of Rs ${formatCurrency(amount)} added successfully to Order #${selectedOrderForPayment}`);
-                    loadOrders(); // Refresh table (this also fetches the new payment history)
+                    
+                    // Refresh data in the background
+                    await loadOrders(); 
+                    
+                    // If the customer modal is open, refresh it so new balance shows
+                    if(currentlyViewingCustomerName) {
+                        openCustomerOrdersModal(currentlyViewingCustomerName);
+                    }
+
                 } else {
                     alert(`Error: ${result.message}`);
                     btn.disabled = false;
@@ -875,12 +1119,12 @@
                 
                 totalSales += t; totalReceived += r; totalBalance += b;
 
-                // Extract and sum up the bag quantities from the "Cement Details" text
+                // Extract and sum up the bag quantities from the "Cement Details" text formatted as "10x OPC @ Rs1500"
                 const detailsStr = o['Cement Details'] || "";
-                const matches = detailsStr.match(/\((\d+)\)/g);
+                const matches = detailsStr.match(/(\d+)x\s/g);
                 if (matches) {
                     matches.forEach(match => {
-                        totalBags += parseInt(match.replace(/[()]/g, ''));
+                        totalBags += parseInt(match.replace('x', '').trim());
                     });
                 }
 
