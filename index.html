@@ -74,6 +74,7 @@
                         <h3 class="font-semibold text-gray-700 border-b pb-2">Customer Details</h3>
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Customer Name</label>
+                            <!-- This datalist automatically updates with names from the Google Sheet -->
                             <input type="text" list="customerList" id="customerName" required placeholder="Select or type name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-yellow-500 focus:ring-yellow-500 border p-2">
                             <datalist id="customerList">
                                 <!-- Options populated dynamically via JavaScript -->
@@ -335,17 +336,11 @@
         ];
 
         // ==========================================
-        // DEFAULT CUSTOMER LIST
-        // EDIT HERE to add, change, or remove default customers in the dropdown.
-        // New customers entered will be auto-added during the session.
+        // CUSTOMER LIST
+        // This array is now completely dynamic. 
+        // It starts empty and fetches historical customers from Google Sheets on page load!
         // ==========================================
-        let dynamicCustomerList = [
-            "Amarasiri Stores",
-            "Perera Hardware",
-            "Silva Constructions",
-            "Nuwan Enterprises",
-            "Lanka Builders"
-        ];
+        let dynamicCustomerList = [];
 
         // Global State
         let selectedOrderForPayment = null;
@@ -377,8 +372,10 @@
             const datalist = document.getElementById('customerList');
             datalist.innerHTML = '';
             
-            // Ensure uniqueness and sort alphabetically
-            const uniqueCustomers = [...new Set(dynamicCustomerList)].sort();
+            // Ensure uniqueness, filter out blanks, and sort alphabetically
+            const uniqueCustomers = [...new Set(dynamicCustomerList)]
+                .filter(name => name && name.trim() !== '')
+                .sort();
             
             uniqueCustomers.forEach(customer => {
                 const option = document.createElement('option');
@@ -387,12 +384,39 @@
             });
         }
 
+        // Fetch customer list instantly from Google Sheets on load
+        async function fetchInitialCustomerList() {
+            if(!isScriptConfigured()) return;
+            try {
+                const response = await fetch(`${SCRIPT_URL}?action=getAllData`);
+                const result = await response.json();
+                
+                if(result.status === 'success') {
+                    allOrdersData = result.orders || []; 
+                    allPaymentsData = result.payments || [];
+                    
+                    // Auto-add historical customers to the dropdown list
+                    allOrdersData.forEach(order => {
+                        const cName = order['Customer Name'];
+                        if (cName && !dynamicCustomerList.includes(cName)) {
+                            dynamicCustomerList.push(cName);
+                        }
+                    });
+                    updateCustomerDatalist();
+                }
+            } catch (error) {
+                console.error("Could not fetch initial customer list:", error);
+            }
+        }
+
         // ==========================================
         // INITIALIZATION & UI LOGIC
         // ==========================================
         document.addEventListener('DOMContentLoaded', () => {
             renderCementOptions();
-            updateCustomerDatalist(); // Initialize the customer dropdown
+            
+            // Fetch names immediately from the database to populate dropdown
+            fetchInitialCustomerList();
             
             // Set today's date in the manual order date input
             const todayStr = new Date().toISOString().split('T')[0];
@@ -627,7 +651,7 @@
                 if(result.status === 'success') {
                     showAlert(`Order #${manualOrderIdStr} successfully created! Generating Preview...`);
                     
-                    // Add to dropdown if it's a new customer
+                    // Add to dropdown dynamically and instantly
                     if (submittedCustomerName && !dynamicCustomerList.includes(submittedCustomerName)) {
                         dynamicCustomerList.push(submittedCustomerName);
                         updateCustomerDatalist();
@@ -812,7 +836,7 @@
                     allOrdersData = result.orders || []; 
                     allPaymentsData = result.payments || [];
                     
-                    // Auto-add historical customers to the dropdown list so it builds up over time
+                    // Auto-add historical customers to the dropdown list
                     allOrdersData.forEach(order => {
                         const cName = order['Customer Name'];
                         if (cName && !dynamicCustomerList.includes(cName)) {
