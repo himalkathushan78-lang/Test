@@ -76,11 +76,7 @@
                             <label class="block text-sm font-medium text-gray-700">Customer Name</label>
                             <input type="text" list="customerList" id="customerName" required placeholder="Select or type name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-yellow-500 focus:ring-yellow-500 border p-2">
                             <datalist id="customerList">
-                                <option value="Amarasiri Stores">
-                                <option value="Perera Hardware">
-                                <option value="Silva Constructions">
-                                <option value="Nuwan Enterprises">
-                                <option value="Lanka Builders">
+                                <!-- Options populated dynamically via JavaScript -->
                             </datalist>
                         </div>
                     </div>
@@ -338,6 +334,19 @@
             { id: 'ppc', name: 'PPC', price: 1500.00 },
         ];
 
+        // ==========================================
+        // DEFAULT CUSTOMER LIST
+        // EDIT HERE to add, change, or remove default customers in the dropdown.
+        // New customers entered will be auto-added during the session.
+        // ==========================================
+        let dynamicCustomerList = [
+            "Amarasiri Stores",
+            "Perera Hardware",
+            "Silva Constructions",
+            "Nuwan Enterprises",
+            "Lanka Builders"
+        ];
+
         // Global State
         let selectedOrderForPayment = null;
         let selectedCustomerNameForReport = null;
@@ -363,11 +372,27 @@
             return Number(amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
 
+        // Function to update the HTML Datalist with the current array of customers
+        function updateCustomerDatalist() {
+            const datalist = document.getElementById('customerList');
+            datalist.innerHTML = '';
+            
+            // Ensure uniqueness and sort alphabetically
+            const uniqueCustomers = [...new Set(dynamicCustomerList)].sort();
+            
+            uniqueCustomers.forEach(customer => {
+                const option = document.createElement('option');
+                option.value = customer;
+                datalist.appendChild(option);
+            });
+        }
+
         // ==========================================
         // INITIALIZATION & UI LOGIC
         // ==========================================
         document.addEventListener('DOMContentLoaded', () => {
             renderCementOptions();
+            updateCustomerDatalist(); // Initialize the customer dropdown
             
             // Set today's date in the manual order date input
             const todayStr = new Date().toISOString().split('T')[0];
@@ -574,12 +599,15 @@
             const compositeDate = new Date(manualDateStr);
             compositeDate.setHours(now.getHours(), now.getMinutes(), now.getSeconds());
 
+            // Check and update customer list if it's a new customer
+            const submittedCustomerName = document.getElementById('customerName').value;
+
             // Send raw float to backend, not formatted string
             const orderData = {
                 action: 'addOrder',
                 orderId: manualOrderIdStr, 
                 date: getFormattedDateTime(compositeDate), 
-                customerName: document.getElementById('customerName').value,
+                customerName: submittedCustomerName,
                 customerId: "", // Keep key empty to avoid breaking Apps Script column structure
                 lorryNumber: document.getElementById('lorryNumber').value,
                 driverName: document.getElementById('driverName').value,
@@ -599,6 +627,12 @@
                 if(result.status === 'success') {
                     showAlert(`Order #${manualOrderIdStr} successfully created! Generating Preview...`);
                     
+                    // Add to dropdown if it's a new customer
+                    if (submittedCustomerName && !dynamicCustomerList.includes(submittedCustomerName)) {
+                        dynamicCustomerList.push(submittedCustomerName);
+                        updateCustomerDatalist();
+                    }
+
                     previewPDF(manualOrderIdStr, orderData, pdfItemsData, totalAmount);
 
                     document.getElementById('orderForm').reset();
@@ -777,6 +811,16 @@
                 if(result.status === 'success') {
                     allOrdersData = result.orders || []; 
                     allPaymentsData = result.payments || [];
+                    
+                    // Auto-add historical customers to the dropdown list so it builds up over time
+                    allOrdersData.forEach(order => {
+                        const cName = order['Customer Name'];
+                        if (cName && !dynamicCustomerList.includes(cName)) {
+                            dynamicCustomerList.push(cName);
+                        }
+                    });
+                    updateCustomerDatalist();
+
                     renderMainAnalysisTable();
                 }
             } catch (error) {
