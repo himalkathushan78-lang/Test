@@ -147,6 +147,15 @@
                     
                     <!-- Report Generation & Filters -->
                     <div class="flex flex-wrap items-center gap-2">
+                        
+                        <!-- Customer Dropdown Filter for Specific Customer PDF -->
+                        <div class="flex items-center space-x-2 bg-white border rounded px-2 py-1.5 shadow-sm">
+                            <span class="text-xs text-gray-500 font-medium">Customer:</span>
+                            <select id="reportCustomerFilter" class="text-sm font-bold outline-none text-gray-700 bg-transparent" onchange="renderMainAnalysisTable()">
+                                <option value="ALL">All Customers</option>
+                            </select>
+                        </div>
+
                         <!-- Pending Toggle -->
                         <div class="flex items-center space-x-2 bg-white border rounded px-3 py-1.5 shadow-sm">
                             <input type="checkbox" id="filterOutstanding" checked class="h-4 w-4 text-yellow-500 focus:ring-yellow-500 rounded cursor-pointer" onchange="renderMainAnalysisTable()">
@@ -159,6 +168,7 @@
                             <span class="text-xs text-gray-500 font-medium">To</span>
                             <input type="date" id="reportEndDate" class="text-sm outline-none text-gray-700">
                         </div>
+
                         <button onclick="generateSalesReport()" class="flex items-center text-sm text-black bg-yellow-500 hover:bg-yellow-600 font-bold px-4 py-2 rounded shadow-sm transition-colors">
                             <i data-lucide="file-text" class="w-4 h-4 mr-1"></i> Sales Report
                         </button>
@@ -230,8 +240,12 @@
                     </table>
                 </div>
 
-                <div class="bg-gray-100 px-4 py-3 sm:px-6 flex justify-end gap-3 rounded-b-lg border-t border-gray-200">
-                    <button onclick="closeCustomerOrdersModal()" class="w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:w-auto sm:text-sm">
+                <!-- Footer with Ledger Download -->
+                <div class="bg-gray-100 px-4 py-3 sm:px-6 flex justify-between items-center rounded-b-lg border-t border-gray-200">
+                    <button onclick="generateCustomerLedger()" class="inline-flex justify-center items-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-yellow-500 text-base font-bold text-black hover:bg-yellow-600 focus:outline-none sm:w-auto sm:text-sm">
+                        <i data-lucide="download" class="mr-2 w-4 h-4"></i> Full Customer Ledger
+                    </button>
+                    <button onclick="closeCustomerOrdersModal()" class="inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:w-auto sm:text-sm">
                         Close
                     </button>
                 </div>
@@ -275,6 +289,15 @@
                             <button onclick="submitPayment()" id="paymentBtn" class="w-full sm:w-auto bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 font-medium whitespace-nowrap shadow-sm">
                                 Submit Payment
                             </button>
+                        </div>
+                        
+                        <!-- Cheque Payment Toggle -->
+                        <div class="mt-3 flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="checkbox" id="isChequePayment" class="form-checkbox h-4 w-4 text-yellow-500 focus:ring-yellow-500 rounded" onchange="toggleChequeField()">
+                                <span class="text-sm font-bold text-gray-700">Cheque Payment</span>
+                            </label>
+                            <input type="text" id="chequeNumber" placeholder="Enter Cheque Number" class="hidden block w-full sm:w-64 rounded-md border-gray-300 shadow-sm focus:border-yellow-500 focus:ring-yellow-500 border p-2 text-sm">
                         </div>
                     </div>
 
@@ -330,7 +353,7 @@
         // CONFIGURATION
         // ==========================================
         // !! IMPORTANT: Replace this URL with your Google Apps Script Web App URL !!
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyjfu-DXLyU5W2OpNVFW_oVgMZUDjYPaA-kmfIxnluEm2i2vVRjbPNrLzBey5KjFfzFmw/exec";
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzclS0WZGp7E_HFBW4v6PYJsS-fjyiDNJVj34O6ieqWEpt06sGr60wE_7rsXgv-C4leRg/exec";
 
         const isScriptConfigured = () => SCRIPT_URL !== "YOUR_WEB_APP_URL_HERE" && SCRIPT_URL.trim() !== "";
         
@@ -371,21 +394,52 @@
             return Number(amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
 
+        // Function to toggle Cheque Number input
+        function toggleChequeField() {
+            const isCheque = document.getElementById('isChequePayment').checked;
+            const chequeInput = document.getElementById('chequeNumber');
+            if (isCheque) {
+                chequeInput.classList.remove('hidden');
+                chequeInput.focus();
+            } else {
+                chequeInput.classList.add('hidden');
+                chequeInput.value = '';
+            }
+        }
+
         // Function to update the HTML Datalist with the current array of customers
         function updateCustomerDatalist() {
             const datalist = document.getElementById('customerList');
+            const filterSelect = document.getElementById('reportCustomerFilter');
+            
             datalist.innerHTML = '';
             
-            // Ensure uniqueness, filter out blanks, and sort alphabetically
-            const uniqueCustomers = [...new Set(dynamicCustomerList)]
-                .filter(name => name && name.trim() !== '')
-                .sort();
-            
-            uniqueCustomers.forEach(customer => {
-                const option = document.createElement('option');
-                option.value = customer;
-                datalist.appendChild(option);
-            });
+            // Rebuild the dropdown filter safely
+            if (filterSelect) {
+                const currentVal = filterSelect.value;
+                filterSelect.innerHTML = '<option value="ALL">All Customers</option>';
+                
+                // Ensure uniqueness, filter out blanks, and sort alphabetically
+                const uniqueCustomers = [...new Set(dynamicCustomerList)]
+                    .filter(name => name && name.trim() !== '')
+                    .sort();
+                
+                uniqueCustomers.forEach(customer => {
+                    const option = document.createElement('option');
+                    option.value = customer;
+                    datalist.appendChild(option);
+                    
+                    const filterOption = document.createElement('option');
+                    filterOption.value = customer;
+                    filterOption.textContent = customer;
+                    filterSelect.appendChild(filterOption);
+                });
+
+                // Maintain selection if it still exists
+                if (uniqueCustomers.includes(currentVal)) {
+                    filterSelect.value = currentVal;
+                }
+            }
         }
 
         // Fetch customer list instantly from Google Sheets on load
@@ -866,12 +920,16 @@
             }
 
             const filterOutstanding = document.getElementById('filterOutstanding').checked;
+            const filterCustomer = document.getElementById('reportCustomerFilter').value;
 
             // Process Data: Group by Customer Name
             const customersMap = {};
             
             allOrdersData.forEach(order => {
                 const cid = order['Customer Name']; 
+                
+                // If a specific customer is selected in the dropdown, skip all others
+                if (filterCustomer !== 'ALL' && cid !== filterCustomer) return;
                 
                 if (!customersMap[cid]) {
                     customersMap[cid] = {
@@ -934,7 +992,7 @@
             });
 
             if(!hasVisibleCustomers) {
-                tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-4 text-center text-gray-500">No pending balances found. Check "Pending Only" to view all.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-4 text-center text-gray-500">No data found matching your filters.</td></tr>`;
             }
 
             lucide.createIcons();
@@ -1077,6 +1135,15 @@
             document.getElementById('paymentDate').value = new Date().toISOString().split('T')[0];
             document.getElementById('addPaymentAmount').value = '';
             
+            // Reset Cheque fields
+            const chequeCheckbox = document.getElementById('isChequePayment');
+            const chequeInput = document.getElementById('chequeNumber');
+            if(chequeCheckbox) chequeCheckbox.checked = false;
+            if(chequeInput) {
+                chequeInput.value = '';
+                chequeInput.classList.add('hidden');
+            }
+            
             if(balance <= 0) {
                 document.getElementById('addPaymentAmount').disabled = true;
                 document.getElementById('paymentDate').disabled = true;
@@ -1106,6 +1173,14 @@
                 return;
             }
             
+            const isCheque = document.getElementById('isChequePayment').checked;
+            const chequeNumber = document.getElementById('chequeNumber').value;
+            
+            if (isCheque && !chequeNumber.trim()) {
+                alert("Please enter the Cheque Number.");
+                return;
+            }
+            
             // Get date from input and combine with current time
             const manualDateStr = document.getElementById('paymentDate').value;
             const now = new Date();
@@ -1125,7 +1200,9 @@
                         orderId: selectedOrderForPayment,
                         customerName: selectedCustomerNameForReport,
                         addAmount: amount,
-                        paymentDate: getFormattedDateTime(compositeDate)
+                        paymentDate: getFormattedDateTime(compositeDate),
+                        isCheque: isCheque,
+                        chequeNumber: chequeNumber
                     })
                 });
                 const result = await response.json();
@@ -1165,6 +1242,8 @@
 
             const startStr = document.getElementById('reportStartDate').value;
             const endStr = document.getElementById('reportEndDate').value;
+            const filterCustomer = document.getElementById('reportCustomerFilter').value;
+            
             let filtered = allOrdersData;
 
             let reportPeriod = "All Time";
@@ -1173,23 +1252,31 @@
                 const end = new Date(endStr); end.setHours(23,59,59,999);
                 reportPeriod = `${startStr} to ${endStr}`;
                 
-                filtered = allOrdersData.filter(o => {
+                filtered = filtered.filter(o => {
                     const d = new Date(o['Date']);
                     return d >= start && d <= end;
                 });
             }
 
+            if (filterCustomer !== 'ALL') {
+                filtered = filtered.filter(o => o['Customer Name'] === filterCustomer);
+            }
+
             if(filtered.length === 0) {
-                alert("No orders found in this date range.");
+                alert("No orders found matching these filters.");
                 return;
             }
 
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
 
+            const reportTitle = filterCustomer === 'ALL' 
+                ? "UltraTech Cement - Master Sales Report" 
+                : `UltraTech Cement - Sales Report: ${filterCustomer}`;
+
             doc.setFontSize(18);
             doc.setTextColor(0, 0, 0); // Black Theme
-            doc.text("UltraTech Cement - Master Sales Report", 14, 20);
+            doc.text(reportTitle, 14, 20);
             
             doc.setFontSize(10);
             doc.setTextColor(100, 100, 100);
@@ -1243,18 +1330,144 @@
             doc.setTextColor(220, 38, 38);
             doc.text(`Total Outstanding: Rs ${formatCurrency(totalBalance)}`, 14, finalY + 36);
 
-            doc.save(`Sales_Report_${reportPeriod.replace(/ /g, '_')}.pdf`);
+            const safeCustomerName = filterCustomer === 'ALL' ? 'All_Customers' : filterCustomer.replace(/ /g, '_');
+            doc.save(`Sales_Report_${safeCustomerName}_${reportPeriod.replace(/ /g, '_')}.pdf`);
+        }
+
+        // ==========================================
+        // CUSTOMER FULL LEDGER GENERATION (All Time)
+        // ==========================================
+        function generateCustomerLedger() {
+            if(!currentlyViewingCustomerName) return;
+
+            // Fetch Orders and Payments strictly for this Customer Name
+            let cOrders = allOrdersData.filter(o => o['Customer Name'] == currentlyViewingCustomerName);
+            let cPayments = allPaymentsData.filter(p => p['Customer Name'] == currentlyViewingCustomerName);
+
+            let ledger = [];
+
+            // Add Orders to ledger
+            cOrders.forEach(o => {
+                const d = new Date(o['Date']);
+                const charge = parseFloat(o['Total Amount']) || 0;
+                ledger.push({
+                    dateObj: d,
+                    ref: `ORD-#${o['Order ID']}`,
+                    desc: o['Cement Details'],
+                    charge: charge,
+                    paid: 0
+                });
+            });
+
+            // Add Payments to ledger
+            cPayments.forEach(p => {
+                const d = new Date(p['Date']);
+                const paid = parseFloat(p['Amount Paid']) || 0;
+                
+                let descText = `Payment for Order #${p['Order ID']}`;
+                if (p['Is Cheque'] === true || p['Is Cheque'] === 'true' || p['Is Cheque'] === 'TRUE' || p['Cheque Number']) {
+                    descText += ` (Cheque: ${p['Cheque Number']})`;
+                }
+                
+                ledger.push({
+                    dateObj: d,
+                    ref: `PAY-#${p['Payment ID'] || 'N/A'}`,
+                    desc: descText,
+                    charge: 0,
+                    paid: paid
+                });
+            });
+
+            // Sort chronologically
+            ledger.sort((a, b) => a.dateObj - b.dateObj);
+
+            let runningBalance = 0;
+            let totalBilled = 0;
+            let totalPaid = 0;
+
+            const tableData = [];
+
+            // Populate table rows
+            ledger.forEach(entry => {
+                runningBalance += entry.charge;
+                runningBalance -= entry.paid;
+                
+                totalBilled += entry.charge;
+                totalPaid += entry.paid;
+
+                const dStr = entry.dateObj.toLocaleDateString() + ' ' + entry.dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+                tableData.push([
+                    dStr,
+                    entry.ref,
+                    entry.desc,
+                    entry.charge > 0 ? `Rs ${formatCurrency(entry.charge)}` : "-",
+                    entry.paid > 0 ? `Rs ${formatCurrency(entry.paid)}` : "-",
+                    `Rs ${formatCurrency(runningBalance)}`
+                ]);
+            });
+
+            if(tableData.length === 0) {
+                alert(`No data found for customer ${currentlyViewingCustomerName}.`);
+                return;
+            }
+
+            // Generate PDF
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            doc.setFontSize(18);
+            doc.setTextColor(0, 0, 0); 
+            doc.text("Statement of Account", 14, 20);
+            
+            doc.setFontSize(11);
+            doc.setTextColor(0,0,0);
+            doc.setFont(undefined, 'bold');
+            doc.text(`Customer Name: ${currentlyViewingCustomerName}`, 14, 30);
+            doc.setFont(undefined, 'normal');
+            doc.setFontSize(10);
+            doc.setTextColor(100, 100, 100);
+            doc.text(`Generated: ${new Date().toLocaleString()}`, 14, 36);
+
+            doc.autoTable({
+                startY: 42,
+                head: [['Date & Time', 'Reference', 'Description', 'Charge', 'Paid', 'Balance']],
+                body: tableData,
+                theme: 'striped',
+                headStyles: { fillColor: [0, 0, 0], textColor: [255, 204, 0] }, 
+                styles: { fontSize: 9 }
+            });
+
+            const finalY = doc.lastAutoTable.finalY || 42;
+            
+            // Draw Summary Box
+            doc.setDrawColor(200,200,200);
+            doc.setFillColor(249,250,251);
+            doc.roundedRect(14, finalY + 10, 182, 30, 2, 2, 'FD');
+
+            doc.setFontSize(12);
+            doc.setFont(undefined, 'bold');
+            doc.setTextColor(0, 0, 0);
+            doc.text(`Total Billed: Rs ${formatCurrency(totalBilled)}`, 20, finalY + 20);
+            
+            doc.setTextColor(22, 101, 52); 
+            doc.text(`Total Paid: Rs ${formatCurrency(totalPaid)}`, 80, finalY + 20);
+            
+            doc.setTextColor(220, 38, 38); 
+            doc.text(`Balance Due: Rs ${formatCurrency(runningBalance)}`, 140, finalY + 20);
+
+            doc.save(`Customer_Ledger_${currentlyViewingCustomerName.replace(/ /g, '_')}.pdf`);
         }
 
         // ==========================================
         // ORDER STATEMENT GENERATION (Specific Order Only)
         // ==========================================
         function generateOrderStatement() {
-            if(!selectedOrderForPayment) return;
+            if(!selectedOrderForPayment || !selectedCustomerNameForReport) return;
             
-            // 1. Fetch Order and Payments for this SPECIFIC Order only
-            let cOrders = allOrdersData.filter(o => o['Order ID'] == selectedOrderForPayment);
-            let cPayments = allPaymentsData.filter(p => p['Order ID'] == selectedOrderForPayment);
+            // 1. Fetch Order and Payments matching BOTH the specific Order ID AND Customer Name
+            let cOrders = allOrdersData.filter(o => o['Order ID'] == selectedOrderForPayment && o['Customer Name'] == selectedCustomerNameForReport);
+            let cPayments = allPaymentsData.filter(p => p['Order ID'] == selectedOrderForPayment && p['Customer Name'] == selectedCustomerNameForReport);
 
             let ledger = [];
 
@@ -1275,10 +1488,16 @@
             cPayments.forEach(p => {
                 const d = new Date(p['Date']);
                 const paid = parseFloat(p['Amount Paid']) || 0;
+                
+                let descText = `Payment for Order #${p['Order ID']}`;
+                if (p['Is Cheque'] === true || p['Is Cheque'] === 'true' || p['Is Cheque'] === 'TRUE' || p['Cheque Number']) {
+                    descText += ` (Cheque: ${p['Cheque Number']})`;
+                }
+                
                 ledger.push({
                     dateObj: d,
-                    ref: `PAY-#${p['Payment ID']}`,
-                    desc: `Payment for Order #${p['Order ID']}`,
+                    ref: `PAY-#${p['Payment ID'] || 'N/A'}`,
+                    desc: descText,
                     charge: 0,
                     paid: paid
                 });
