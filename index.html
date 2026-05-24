@@ -32,8 +32,11 @@
                     <span class="font-extrabold text-xl tracking-tighter text-black uppercase">UltraTech</span>
                 </div>
                 <div class="flex space-x-4">
+                    <div class="flex space-x-4">
                     <button onclick="switchTab('order')" id="tab-order" class="px-3 py-2 rounded-md text-sm font-bold bg-yellow-500 text-black focus:outline-none transition-colors">Order Form</button>
+                    <button onclick="switchTab('bulk')" id="tab-bulk" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-800 text-white focus:outline-none transition-colors">Bulk Order</button>
                     <button onclick="switchTab('analyze')" id="tab-analyze" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-800 text-white focus:outline-none transition-colors">Analyze</button>
+                </div>
                 </div>
             </div>
         </div>
@@ -207,6 +210,94 @@
                     </table>
                 </div>
             </div>
+        </section>
+
+        <!-- ==================== BULK ORDER TAB ==================== -->
+        <section id="sec-bulk" class="hidden bg-white rounded-xl shadow-md p-6 sm:p-8 border border-gray-200 mb-8">
+            <div class="flex justify-between items-center mb-6 pb-4 border-b">
+                <h2 class="text-2xl font-bold text-gray-800 flex items-center">
+                    <i data-lucide="truck" class="mr-2 text-yellow-500"></i> Split Bulk Order
+                </h2>
+                <p class="text-sm text-gray-500">Distribute one lorry load across multiple customers</p>
+            </div>
+
+            <form id="bulkForm" onsubmit="submitBulkOrder(event)">
+                <!-- Shared Logistics Information -->
+                <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-4">
+                    <h3 class="font-semibold text-gray-700 border-b pb-2 mb-4">Shared Logistics & Date</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Base Order No.</label>
+                            <input type="text" id="bulkOrderId" required placeholder="e.g. 2000" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-yellow-500 border p-2 font-bold bg-yellow-50">
+                            <p class="text-xs text-gray-400 mt-1">Splits will be B-2000-1, B-2000-2</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Order Date</label>
+                            <input type="date" id="bulkOrderDate" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm border p-2">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-blue-800">Total Bulk Bags (Lorry Load)</label>
+                            <input type="number" id="bulkTotalBags" required min="1" placeholder="e.g. 400" class="mt-1 block w-full rounded-md border-blue-400 shadow-sm focus:border-blue-500 border p-2 font-bold bg-blue-50 text-blue-900" oninput="calcBulkTotal()">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Lorry Number</label>
+                            <input type="text" id="bulkLorry" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm border p-2">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Driver Name</label>
+                            <input type="text" id="bulkDriverName" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm border p-2">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Driver ID</label>
+                            <input type="text" id="bulkDriverId" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm border p-2">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live Bag Tracker -->
+                <div class="flex flex-col sm:flex-row justify-between items-center bg-black text-white p-4 rounded-lg mb-6 shadow-md border-b-4 border-yellow-500">
+                    <div class="text-center sm:text-left mb-2 sm:mb-0">
+                        <span class="text-gray-400 text-xs uppercase font-bold tracking-wider">Total Load</span>
+                        <div class="text-2xl font-bold" id="trackerTotal">0 Bags</div>
+                    </div>
+                    <div class="text-center sm:text-left mb-2 sm:mb-0">
+                        <span class="text-gray-400 text-xs uppercase font-bold tracking-wider">Allocated</span>
+                        <div class="text-2xl font-bold text-yellow-500" id="trackerAllocated">0 Bags</div>
+                    </div>
+                    <div class="text-center sm:text-right">
+                        <span class="text-gray-400 text-xs uppercase font-bold tracking-wider">Remaining</span>
+                        <div class="text-2xl font-bold text-green-400 transition-colors" id="trackerRemaining">0 Bags</div>
+                    </div>
+                </div>
+
+                <!-- Customer Allocations -->
+
+                <!-- Customer Allocations -->
+                <div class="mb-6">
+                    <div class="flex justify-between items-center border-b pb-2 mb-4">
+                        <h3 class="font-semibold text-gray-700">Customer Allocations</h3>
+                        <button type="button" onclick="addBulkAllocation()" class="flex items-center px-3 py-1 bg-black text-white text-sm font-bold rounded hover:bg-gray-800">
+                            <i data-lucide="plus" class="w-4 h-4 mr-1"></i> Add Customer
+                        </button>
+                    </div>
+                    
+                    <div id="bulkAllocationsContainer" class="space-y-4">
+                        <!-- Dynamic Allocation Rows injected via JS -->
+                    </div>
+                </div>
+
+                <!-- Total & Submit -->
+                <div class="flex flex-col sm:flex-row justify-between items-center border-t pt-6 mt-6">
+                    <div class="text-xl mb-4 sm:mb-0">
+                        <span class="text-gray-600 font-medium">Bulk Grand Total:</span> 
+                        <span class="text-3xl font-bold text-green-600 ml-2" id="bulkTotalDisplay">Rs 0.00</span>
+                    </div>
+                    
+                    <button type="submit" id="submitBulkBtn" class="w-full sm:w-auto flex items-center justify-center px-8 py-3 border border-transparent text-base font-bold rounded-md text-black bg-yellow-500 hover:bg-yellow-600 shadow-lg transition-transform hover:scale-105">
+                        <i data-lucide="send" class="mr-2"></i> Submit Bulk Allocations
+                    </button>
+                </div>
+            </form>
         </section>
 
     </main>
@@ -514,21 +605,26 @@
 
         function switchTab(tab) {
             document.getElementById('sec-order').classList.add('hidden');
+            document.getElementById('sec-bulk').classList.add('hidden');
             document.getElementById('sec-analyze').classList.add('hidden');
             
             const inactiveClass = 'px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-800 text-white focus:outline-none transition-colors';
             const activeClass = 'px-3 py-2 rounded-md text-sm font-bold bg-yellow-500 text-black focus:outline-none transition-colors';
 
             document.getElementById('tab-order').className = inactiveClass;
+            document.getElementById('tab-bulk').className = inactiveClass;
             document.getElementById('tab-analyze').className = inactiveClass;
 
             if(tab === 'order') {
                 document.getElementById('sec-order').classList.remove('hidden');
                 document.getElementById('tab-order').className = activeClass;
+            } else if (tab === 'bulk') {
+                document.getElementById('sec-bulk').classList.remove('hidden');
+                document.getElementById('tab-bulk').className = activeClass;
             } else {
                 document.getElementById('sec-analyze').classList.remove('hidden');
                 document.getElementById('tab-analyze').className = activeClass;
-                loadOrders(); // Refresh table when opening analyze tab
+                loadOrders();
             }
         }
 
@@ -1380,6 +1476,9 @@
         // ==========================================
         // OUTSTANDING REPORT GENERATION
         // ==========================================
+        // ==========================================
+        // OUTSTANDING REPORT GENERATION (Per Order)
+        // ==========================================
         function generateOutstandingReport() {
             if(allOrdersData.length === 0) {
                 alert("No data to generate report.");
@@ -1408,40 +1507,10 @@
                 filtered = filtered.filter(o => o['Customer Name'] === filterCustomer);
             }
 
-            // Process Data: Group by Customer Name
-            const customersMap = {};
-            
-            filtered.forEach(order => {
-                const cid = order['Customer Name']; 
-                
-                if (!customersMap[cid]) {
-                    customersMap[cid] = {
-                        name: cid,
-                        totalBilled: 0,
-                        totalReceived: 0,
-                        totalBalance: 0,
-                        lastOrderDate: new Date(0)
-                    };
-                }
-                
-                const t = parseFloat(order['Total Amount']) || 0;
-                const b = parseFloat(order['Balance']) || 0;
-                const r = parseFloat(order['Received Amount']) || 0;
-                const d = new Date(order['Date']);
+            // Filter out orders that are fully paid (Balance <= 0)
+            const outstandingOrders = filtered.filter(order => (parseFloat(order['Balance']) || 0) > 0);
 
-                customersMap[cid].totalBilled += t;
-                customersMap[cid].totalBalance += b;
-                customersMap[cid].totalReceived += r;
-                
-                if (d > customersMap[cid].lastOrderDate) {
-                    customersMap[cid].lastOrderDate = d;
-                }
-            });
-
-            // Filter out customers with Zero Balance
-            const outstandingCustomers = Object.values(customersMap).filter(cust => cust.totalBalance > 0);
-
-            if(outstandingCustomers.length === 0) {
+            if(outstandingOrders.length === 0) {
                 alert("No outstanding balances found matching these filters in this time period.");
                 return;
             }
@@ -1450,8 +1519,8 @@
             const doc = new jsPDF();
 
             const reportTitle = filterCustomer === 'ALL' 
-                ? "UltraTech Cement - Outstanding Balances" 
-                : `UltraTech Cement - Outstanding Balances: ${filterCustomer}`;
+                ? "UltraTech Cement - Outstanding Orders" 
+                : `UltraTech Cement - Outstanding Orders: ${filterCustomer}`;
 
             doc.setFontSize(18);
             doc.setTextColor(0, 0, 0); // Black Theme
@@ -1463,26 +1532,39 @@
             doc.text(`Generated On: ${new Date().toLocaleString()}`, 14, 34);
 
             let grandBilled = 0, grandReceived = 0, grandPending = 0;
+            const today = new Date();
             
-            const tableData = outstandingCustomers.map(cust => {
-                grandBilled += cust.totalBilled;
-                grandReceived += cust.totalReceived;
-                grandPending += cust.totalBalance;
+            // Map individual orders into the PDF table
+            const tableData = outstandingOrders.map(order => {
+                const t = parseFloat(order['Total Amount']) || 0;
+                const r = parseFloat(order['Received Amount']) || 0;
+                const b = parseFloat(order['Balance']) || 0;
 
-                const lastDateStr = cust.lastOrderDate.toLocaleDateString();
+                grandBilled += t;
+                grandReceived += r;
+                grandPending += b;
+
+                const orderDate = new Date(order['Date']);
+                const lastDateStr = orderDate.toLocaleDateString();
+                
+                // Calculate outstanding days
+                const diffTime = Math.abs(today - orderDate);
+                let outstandingDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) - 1;
+                if (outstandingDays < 0) outstandingDays = 0;
 
                 return [
-                    cust.name,
+                    `#${order['Order ID']}`,
+                    order['Customer Name'],
                     lastDateStr,
-                    `Rs ${formatCurrency(cust.totalBilled)}`,
-                    `Rs ${formatCurrency(cust.totalReceived)}`,
-                    `Rs ${formatCurrency(cust.totalBalance)}`
+                    `${outstandingDays} Days`,
+                    `Rs ${formatCurrency(t)}`,
+                    `Rs ${formatCurrency(b)}`
                 ];
             });
 
             doc.autoTable({
                 startY: 42,
-                head: [['Customer Name', 'Last Order Date', 'Total Billed', 'Total Received', 'Total Pending']],
+                head: [['Order ID', 'Customer Name', 'Order Date', 'Outstanding Age', 'Order Total', 'Balance Due']],
                 body: tableData,
                 theme: 'striped',
                 headStyles: { fillColor: [0, 0, 0], textColor: [255, 204, 0] }, // Black header, Yellow text
@@ -1493,9 +1575,9 @@
             doc.setFontSize(12);
             doc.setFont(undefined, 'bold');
             doc.setTextColor(0, 0, 0);
-            doc.text(`Grand Total Billed: Rs ${formatCurrency(grandBilled)}`, 14, finalY + 15);
+            doc.text(`Grand Total Billed (Outstanding Orders): Rs ${formatCurrency(grandBilled)}`, 14, finalY + 15);
             doc.setTextColor(22, 101, 52);
-            doc.text(`Grand Total Received: Rs ${formatCurrency(grandReceived)}`, 14, finalY + 22);
+            doc.text(`Grand Total Received (Outstanding Orders): Rs ${formatCurrency(grandReceived)}`, 14, finalY + 22);
             doc.setTextColor(220, 38, 38);
             doc.text(`Grand Total Outstanding: Rs ${formatCurrency(grandPending)}`, 14, finalY + 29);
 
@@ -1771,6 +1853,208 @@
             doc.text(`Balance Due: Rs ${formatCurrency(runningBalance)}`, 140, finalY + 20);
 
             doc.save(`Order_Statement_${selectedOrderForPayment}.pdf`);
+        }
+
+        // ==========================================
+        // BULK ORDER LOGIC
+        // ==========================================
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set today's date in bulk form
+            document.getElementById('bulkOrderDate').value = new Date().toISOString().split('T')[0];
+            // Add initial row
+            addBulkAllocation();
+        });
+
+        function addBulkAllocation() {
+            const container = document.getElementById('bulkAllocationsContainer');
+            const row = document.createElement('div');
+            row.className = 'bulk-row grid grid-cols-1 sm:grid-cols-12 gap-4 items-end bg-white p-4 rounded border shadow-sm relative';
+            
+            row.innerHTML = `
+                <div class="sm:col-span-3">
+                    <label class="block text-xs font-bold text-gray-700">Customer Name</label>
+                    <input type="text" list="customerList" class="bulk-customer mt-1 block w-full rounded border-gray-300 shadow-sm focus:border-yellow-500 p-2" required>
+                </div>
+                <div class="sm:col-span-2">
+                    <label class="block text-xs font-bold text-gray-700">Cement Type</label>
+                    <select class="bulk-type mt-1 block w-full rounded border-gray-300 shadow-sm focus:border-yellow-500 p-2">
+                        <option value="OPC">OPC</option>
+                        <option value="PPC">PPC</option>
+                    </select>
+                </div>
+                <div class="sm:col-span-2">
+                    <label class="block text-xs font-bold text-gray-700">Quantity</label>
+                    <input type="number" min="1" class="bulk-qty mt-1 block w-full rounded border-gray-300 shadow-sm focus:border-yellow-500 p-2" oninput="calcBulkTotal()" required>
+                </div>
+                <div class="sm:col-span-2">
+                    <label class="block text-xs font-bold text-gray-700">Price / Bag</label>
+                    <input type="number" min="0" step="0.01" value="1500" class="bulk-price mt-1 block w-full rounded border-gray-300 shadow-sm focus:border-yellow-500 p-2" oninput="calcBulkTotal()" required>
+                </div>
+                <div class="sm:col-span-2">
+                    <label class="block text-xs font-bold text-gray-700">Hire / Bag</label>
+                    <input type="number" min="0" step="0.01" value="0" class="bulk-hire mt-1 block w-full rounded border-gray-300 shadow-sm focus:border-yellow-500 p-2" oninput="calcBulkTotal()">
+                </div>
+                <div class="sm:col-span-1 flex justify-end">
+                    <button type="button" onclick="removeBulkAllocation(this)" class="text-red-500 hover:text-red-700 bg-red-50 p-2 rounded border border-red-100 w-full flex justify-center"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
+                </div>
+            `;
+            container.appendChild(row);
+            lucide.createIcons();
+        }
+
+        function removeBulkAllocation(btn) {
+            const container = document.getElementById('bulkAllocationsContainer');
+            if(container.children.length > 1) {
+                btn.closest('.bulk-row').remove();
+                calcBulkTotal();
+            } else {
+                showAlert("You must have at least one customer allocation.", "error");
+            }
+        }
+
+        function calcBulkTotal() {
+            let grandTotal = 0;
+            let allocatedBags = 0;
+            const totalLoad = parseInt(document.getElementById('bulkTotalBags').value) || 0;
+            
+            const rows = document.querySelectorAll('.bulk-row');
+            
+            rows.forEach(row => {
+                const qty = parseInt(row.querySelector('.bulk-qty').value) || 0;
+                const price = parseFloat(row.querySelector('.bulk-price').value) || 0;
+                const hire = parseFloat(row.querySelector('.bulk-hire').value) || 0;
+                
+                allocatedBags += qty;
+                grandTotal += (qty * price) + (qty * hire);
+            });
+            
+            const remaining = totalLoad - allocatedBags;
+            
+            // Update the dark UI tracker
+            document.getElementById('trackerTotal').innerText = `${totalLoad} Bags`;
+            document.getElementById('trackerAllocated').innerText = `${allocatedBags} Bags`;
+            
+            const remEl = document.getElementById('trackerRemaining');
+            remEl.innerText = `${remaining} Bags`;
+            
+            // Change color dynamically based on remaining status
+            if(remaining < 0) {
+                remEl.className = "text-2xl font-bold text-red-500"; // Over-allocated
+            } else if (remaining === 0) {
+                remEl.className = "text-2xl font-bold text-gray-400"; // Perfectly balanced
+            } else {
+                remEl.className = "text-2xl font-bold text-green-400"; // Still space left
+            }
+            
+            document.getElementById('bulkTotalDisplay').innerText = `Rs ${formatCurrency(grandTotal)}`;
+        }
+
+        async function submitBulkOrder(e) {
+            e.preventDefault();
+            if(!isScriptConfigured()) {
+                showAlert("Please configure your Google Apps Script Web App URL first.", "error");
+                return;
+            }
+
+            // --- NEW: Validate Bag Allocations Before Submitting ---
+            const totalLoad = parseInt(document.getElementById('bulkTotalBags').value) || 0;
+            let allocatedBags = 0;
+            document.querySelectorAll('.bulk-qty').forEach(input => {
+                allocatedBags += parseInt(input.value) || 0;
+            });
+
+            if (allocatedBags > totalLoad) {
+                showAlert(`Error: You allocated ${allocatedBags} bags, but the total load is only ${totalLoad}. Please fix quantities.`, "error");
+                return; // Stop submission
+            }
+            if (allocatedBags === 0) {
+                showAlert("Please allocate at least 1 bag to a customer.", "error");
+                return;
+            }
+            // -------------------------------------------------------
+
+            const btn = document.getElementById('submitBulkBtn');
+            btn.disabled = true;
+            btn.innerHTML = `<div class="loader mr-2 w-5 h-5 border-2"></div> Submitting Bulk...`;
+
+            // Shared Data
+            const baseOrderId = document.getElementById('bulkOrderId').value;
+            const manualDateStr = document.getElementById('bulkOrderDate').value;
+            const lorry = document.getElementById('bulkLorry').value;
+            const driverName = document.getElementById('bulkDriverName').value;
+            const driverId = document.getElementById('bulkDriverId').value;
+
+            const now = new Date();
+            const compositeDate = new Date(manualDateStr);
+            compositeDate.setHours(now.getHours(), now.getMinutes(), now.getSeconds());
+            const finalDateStr = getFormattedDateTime(compositeDate);
+
+            const rows = document.querySelectorAll('.bulk-row');
+            let successCount = 0;
+
+            // Submit each allocation sequentially
+            for(let i = 0; i < rows.length; i++) {
+                const row = rows[i];
+                const custName = row.querySelector('.bulk-customer').value;
+                const type = row.querySelector('.bulk-type').value;
+                const qty = parseInt(row.querySelector('.bulk-qty').value);
+                const price = parseFloat(row.querySelector('.bulk-price').value);
+                const hire = parseFloat(row.querySelector('.bulk-hire').value) || 0;
+
+                const subtotal = (qty * price) + (qty * hire);
+                
+                let cementDetails = `${qty}x ${type} @ Rs${price}`;
+                if(hire > 0) cementDetails += `, Hire: ${qty} bags @ Rs${hire}`;
+
+                const specificOrderId = `B-${baseOrderId}-${i + 1}`; // e.g., B-2000-1
+
+                const orderData = {
+                    action: 'addOrder',
+                    orderId: specificOrderId, 
+                    date: finalDateStr, 
+                    customerName: custName,
+                    customerId: "", 
+                    lorryNumber: lorry,
+                    driverName: driverName,
+                    driverId: driverId,
+                    cementDetails: cementDetails,
+                    totalAmount: subtotal
+                };
+
+                try {
+                    const response = await fetch(SCRIPT_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
+                        body: JSON.stringify(orderData)
+                    });
+                    const result = await response.json();
+                    
+                    if(result.status === 'success') {
+                        successCount++;
+                        if (custName && !dynamicCustomerList.includes(custName)) {
+                            dynamicCustomerList.push(custName);
+                        }
+                    }
+                } catch (error) {
+                    console.error("Error submitting bulk part:", error);
+                }
+            }
+
+            updateCustomerDatalist();
+
+            if (successCount === rows.length) {
+                showAlert(`Successfully split and submitted ${successCount} orders!`);
+                document.getElementById('bulkForm').reset();
+                document.getElementById('bulkAllocationsContainer').innerHTML = '';
+                addBulkAllocation(); 
+                calcBulkTotal(); // Reset the tracker UI
+            } else {
+                showAlert(`Partial success: Submitted ${successCount} out of ${rows.length} allocations. Check your network.`, "error");
+            }
+
+            btn.disabled = false;
+            btn.innerHTML = `<i data-lucide="send" class="mr-2"></i> Submit Bulk Allocations`;
+            lucide.createIcons();
         }
     </script>
 </body>
